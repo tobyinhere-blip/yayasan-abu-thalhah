@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pengaturan Header & Footer - Admin Yayasan Abu Thalhah</title>
+  <link rel="icon" href="../logo_yayasan.png" type="image/png">
+  <link rel="stylesheet" href="css/admin.css">
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+</head>
+<body>
+  <div id="sidebarContainer"></div>
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <div>
+        <div class="topbar-title">Pengaturan Header & Footer</div>
+        <span class="topbar-breadcrumb">Dashboard / Pengaturan Header & Footer</span>
+      </div>
+      <button class="btn btn-primary" onclick="saveHeaderFooter()" id="saveBtn">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        Simpan Header & Footer
+      </button>
+    </header>
+
+    <div class="admin-content">
+
+      <!-- Section 1: Pengaturan Header Navigasi -->
+      <div class="form-section">
+        <div class="form-section-title">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          Pengaturan Header (Navbar Top)
+        </div>
+        <div class="form-grid">
+          <div class="form-group col-6">
+            <label class="form-label">Subtitle Logo Header</label>
+            <input type="text" id="headerBrandSubtitle" class="form-input" value="Yayasan Islamic Center" placeholder="Yayasan Islamic Center">
+          </div>
+          <div class="form-group col-6">
+            <label class="form-label">Gambar Logo URL</label>
+            <input type="text" id="headerLogoUrl" class="form-input" value="logo_yayasan.png" placeholder="logo_yayasan.png">
+          </div>
+          <div class="form-group col-6">
+            <label class="form-label">Teks Tombol CTA Header</label>
+            <input type="text" id="headerCtaText" class="form-input" value="Hubungi Kami" placeholder="Hubungi Kami">
+          </div>
+          <div class="form-group col-6">
+            <label class="form-label">Tautan / Link WhatsApp CTA Header</label>
+            <input type="text" id="headerCtaLink" class="form-input" value="https://api.whatsapp.com/send/?phone=+62 852-9222-7887&text&type=phone_number&app_absent=0" placeholder="https://api.whatsapp.com/send/?phone=+62 852-9222-7887...">
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Kontak & Alamat Footer -->
+      <div class="form-section">
+        <div class="form-section-title">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          Profil Kontak & Alamat Footer
+        </div>
+        <div class="form-grid">
+          <div class="form-group col-12">
+            <label class="form-label">Alamat Lengkap Yayasan</label>
+            <input type="text" id="footerAddress" class="form-input" value="Jl. Dewi Sartika No. 104 Palu Selatan, Kota Palu - Sulawesi Tengah, 94235" placeholder="Jl. Emy Saelan No. 84, Tatura Selatan, Palu Selatan, Kota Palu">
+          </div>
+          <div class="form-group col-6">
+            <label class="form-label">Nomor Telepon / WhatsApp</label>
+            <input type="text" id="footerPhone" class="form-input" value="+62 852-9222-7887" placeholder="+62 852-9222-7887">
+          </div>
+          <div class="form-group col-6">
+            <label class="form-label">Email Informasi Resmi</label>
+            <input type="text" id="footerEmail" class="form-input" value="info@yayasanabuthalhah.sch.id" placeholder="info@abuthalhah.or.id">
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Media Sosial -->
+      <div class="form-section">
+        <div class="form-section-title">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+          Tautan Media Sosial Yayasan
+        </div>
+        <div class="form-grid">
+          <div class="form-group col-4">
+            <label class="form-label">Link Facebook</label>
+            <input type="text" id="socialFacebook" class="form-input" value="https://www.facebook.com/SMAN3.Palu" placeholder="https://facebook.com/yayasanabuthalhah">
+          </div>
+          <div class="form-group col-4">
+            <label class="form-label">Link Instagram</label>
+            <input type="text" id="socialInstagram" class="form-input" value="https://www.instagram.com/sman3palu.official" placeholder="https://instagram.com/yayasanabuthalhah">
+          </div>
+          <div class="form-group col-4">
+            <label class="form-label">Link YouTube</label>
+            <input type="text" id="socialYoutube" class="form-input" value="https://youtube.com" placeholder="https://youtube.com/@yayasanabuthalhah">
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Copyright & Bottom Bar -->
+      <div class="form-section">
+        <div class="form-section-title">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          Copyright & Baris Bawah Footer
+        </div>
+        <div class="form-grid">
+          <div class="form-group col-12">
+            <label class="form-label">Teks Copyright Hak Cipta</label>
+            <input type="text" id="footerCopyright" class="form-input" value="© 2026 Yayasan Islamic Center Abu Thalhah Al Anshari. All rights reserved." placeholder="© 2026 Yayasan Islamic Center Abu Thalhah Al Anshari. All rights reserved.">
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:right;margin-top:8px;margin-bottom:30px;">
+        <button class="btn btn-primary" onclick="saveHeaderFooter()" style="padding:12px 32px;font-size:15px;">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          Simpan Semua Pengaturan Header & Footer
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/firebase-config.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    injectSidebar('header_footer');
+
+    // Load existing Header & Footer data
+    db.ref('header_footer').once('value').then(snap => {
+      if (!snap.exists()) return;
+      const d = snap.val();
+
+      if (d.headerBrandSubtitle) document.getElementById('headerBrandSubtitle').value = d.headerBrandSubtitle;
+      if (d.headerLogoUrl) document.getElementById('headerLogoUrl').value = d.headerLogoUrl;
+      if (d.headerCtaText) document.getElementById('headerCtaText').value = d.headerCtaText;
+      if (d.headerCtaLink) document.getElementById('headerCtaLink').value = d.headerCtaLink;
+
+      if (d.footerAddress) document.getElementById('footerAddress').value = d.footerAddress;
+      if (d.footerPhone) document.getElementById('footerPhone').value = d.footerPhone;
+      if (d.footerEmail) document.getElementById('footerEmail').value = d.footerEmail;
+
+      if (d.socialFacebook) document.getElementById('socialFacebook').value = d.socialFacebook;
+      if (d.socialInstagram) document.getElementById('socialInstagram').value = d.socialInstagram;
+      if (d.socialYoutube) document.getElementById('socialYoutube').value = d.socialYoutube;
+
+      if (d.footerCopyright) document.getElementById('footerCopyright').value = d.footerCopyright;
+    });
+
+    async function saveHeaderFooter() {
+      const btn = document.getElementById('saveBtn');
+      btn.disabled = true;
+      btn.textContent = 'Menyimpan...';
+
+      try {
+        const payload = {
+          headerBrandSubtitle: document.getElementById('headerBrandSubtitle').value.trim(),
+          headerLogoUrl: document.getElementById('headerLogoUrl').value.trim(),
+          headerCtaText: document.getElementById('headerCtaText').value.trim(),
+          headerCtaLink: document.getElementById('headerCtaLink').value.trim(),
+
+          footerAddress: document.getElementById('footerAddress').value.trim(),
+          footerPhone: document.getElementById('footerPhone').value.trim(),
+          footerEmail: document.getElementById('footerEmail').value.trim(),
+
+          socialFacebook: document.getElementById('socialFacebook').value.trim(),
+          socialInstagram: document.getElementById('socialInstagram').value.trim(),
+          socialYoutube: document.getElementById('socialYoutube').value.trim(),
+
+          footerCopyright: document.getElementById('footerCopyright').value.trim(),
+          updatedAt: firebase.database.ServerValue.TIMESTAMP
+        };
+
+        await db.ref('header_footer').set(payload);
+        showToast('Pengaturan Header & Footer berhasil disimpan!', 'success');
+      } catch (err) {
+        showToast('Gagal menyimpan: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Simpan Header & Footer`;
+      }
+    }
+  </script>
+</body>
+</html>

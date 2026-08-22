@@ -1,0 +1,83 @@
+---
+// src/pages/berita/[slug].astro - Dynamic News Article Page
+import Layout from '../../layouts/Layout.astro';
+
+export function getStaticPaths() {
+  return [
+    {
+      params: { slug: 'peletakan-batu' },
+      props: {
+        title: 'Pembangunan Gedung Baru SDIT Al Mubarak Resmi Dimulai dengan Peletakan Batu Pertama',
+        author: 'Admin Yayasan',
+        date: '8 Jan 2026',
+        category: 'Pengumuman',
+        image: 'https://cms.sitalmubarak.com/wp-content/uploads/2026/01/IMG_9776-scaled.jpg',
+        body: `<p class="mb-4">Sebagai wujud komitmen dalam meningkatkan kualitas pendidikan Islam, <strong>SDIT Al Mubarak</strong> secara resmi memulai pembangunan dan renovasi fasilitas sekolah. Kegiatan ini diawali dengan <strong>peletakan batu pertama</strong>, yang menjadi simbol dimulainya ikhtiar bersama dalam menghadirkan lingkungan belajar yang lebih nyaman, aman, dan representatif bagi para peserta didik.</p><p class="mb-4">Pembangunan ini bukan sekadar proyek fisik, melainkan bagian dari visi besar SDIT Al Mubarak dalam mencetak generasi Qur’ani yang berilmu, berakhlak mulia, dan siap menghadapi tantangan masa depan.</p><h2 class="text-xl font-bold text-gray-900 mt-6 mb-3">Makna Peletakan Batu Pertama</h2><p class="mb-4">Prosesi peletakan batu pertama dilaksanakan dengan penuh khidmat dan doa, sebagai bentuk harapan agar setiap proses pembangunan diberi kelancaran dan keberkahan oleh Allah ﷻ.</p>`
+      }
+    },
+    {
+      params: { slug: 'juara-mtq' },
+      props: {
+        title: "Santri Yayasan Abu Thalhah Raih Juara Musabaqah Tilawatil Qur'an (MTQ) Tingkat Provinsi",
+        author: 'Admin Yayasan',
+        date: '29 Jul 2026',
+        category: 'Prestasi Yayasan',
+        image: '/siswi-berprestasii.png',
+        body: `<p class="mb-4">Prestasi membanggakan kembali diraih oleh santri Yayasan Islamic Center Abu Thalhah Al Anshari dalam kejuaraan MTQ tingkat provinsi. Dengan persiapan matang dan bimbingan para asatidzah, para santri mampu menunjukkan bacaan Al-Qur'an yang tajwid dan merdu.</p>`
+      }
+    },
+    {
+      params: { slug: 'psb' },
+      props: {
+        title: 'Penerimaan Santri Baru (PSB) Tahun Ajaran 2026/2027 Telah Resmi Dibuka',
+        author: 'Admin Yayasan',
+        date: '25 Jul 2026',
+        category: 'Pengumuman',
+        image: '/cta-image.png',
+        body: `<p class="mb-4">Yayasan Islamic Center Abu Thalhah Al Anshari mengundang putra-putri terbaik bangsa untuk bergabung menjadi generasi Rabbani yang hafal Al-Qur'an dan berprestasi secara akademik.</p>`
+      }
+    }
+  ];
+}
+
+const { title, author, date, category, image, body } = Astro.props;
+---
+
+<Layout title={`${title} - Yayasan Islamic Center Abu Thalhah Al Anshari`} activePage="berita">
+  
+  <article class="py-16 lg:py-24 bg-white">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Article Header -->
+      <div class="mb-8">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="bg-smanti-red text-white text-xs font-bold px-3 py-1 rounded-sm" style="background-color: #107163 !important;">
+            {category}
+          </span>
+          <span class="text-xs text-gray-500">{date}</span>
+          <span class="text-xs text-gray-400">&bull;</span>
+          <span class="text-xs text-gray-500">Oleh {author}</span>
+        </div>
+        <h1 class="font-sora text-3xl sm:text-4xl font-extrabold text-gray-900 leading-tight mb-6">{title}</h1>
+      </div>
+
+      <!-- Featured Image -->
+      <div class="relative aspect-[16/9] mb-10 overflow-hidden rounded-sm bg-gray-100 shadow-md">
+        <img src={image} alt={title} class="w-full h-full object-cover">
+      </div>
+
+      <!-- Article Body -->
+      <div class="prose prose-lg max-w-none text-gray-700 font-poppins leading-relaxed" set:html={body} />
+
+      <!-- Back Link -->
+      <div class="mt-12 pt-8 border-t border-gray-200">
+        <a href="/berita" class="inline-flex items-center gap-2 text-smanti-red hover:text-smanti-orange font-semibold transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          <span>Kembali ke Daftar Berita</span>
+        </a>
+      </div>
+
+    </div>
+  </article>
+
+</Layout>

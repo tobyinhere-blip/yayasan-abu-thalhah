@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kelola Galeri - Admin Yayasan Abu Thalhah</title>
+  <link rel="icon" href="../logo_yayasan.png" type="image/png">
+  <link rel="stylesheet" href="css/admin.css">
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+</head>
+<body>
+  <div id="sidebarContainer"></div>
+
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <div>
+        <div class="topbar-title">Galeri Foto</div>
+        <span class="topbar-breadcrumb">Dashboard / Galeri</span>
+      </div>
+      <button class="btn btn-primary" onclick="openAddModal()">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Tambah Foto
+      </button>
+    </header>
+
+    <div class="admin-content">
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <div class="admin-card-title">Daftar Foto Galeri</div>
+          <span class="badge badge-green" id="countBadge">0 foto</span>
+        </div>
+        <div class="admin-card-body">
+          <div id="loadingState" class="loading-spinner"><div class="spinner"></div></div>
+          <div class="gallery-admin-grid" id="galleryGrid" style="display:none"></div>
+          <div id="emptyState" class="empty-state" style="display:none">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <p>Belum ada foto di galeri.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div class="modal-overlay" id="addModal" style="display:none">
+    <div class="modal" style="max-width:500px">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">Tambah Foto</div>
+        <button onclick="closeAddModal()" class="btn-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid" style="gap:14px;">
+          <div class="form-group">
+            <label class="form-label">URL Foto <span class="required">*</span></label>
+            <input type="text" id="fotoUrl" class="form-input" placeholder="https://..." oninput="previewGaleriImg()">
+          </div>
+          <div class="img-preview-box" id="galeriPreview" style="min-height:80px;">
+            <span style="color:#94a8a5;font-size:13px;">Preview</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Keterangan Foto</label>
+            <input type="text" id="fotoCaption" class="form-input" placeholder="Deskripsi foto...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kategori</label>
+            <select id="fotoCategory" class="form-select">
+              <option value="Kegiatan">Kegiatan</option>
+              <option value="Prestasi">Prestasi</option>
+              <option value="Fasilitas">Fasilitas</option>
+              <option value="Lainnya">Lainnya</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button onclick="closeAddModal()" class="btn btn-outline">Batal</button>
+        <button onclick="saveFoto()" class="btn btn-primary" id="saveFotoBtn">Simpan Foto</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  <div class="modal-overlay" id="deleteModal" style="display:none">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" style="color:#e53e3e">Hapus Foto</div>
+        <button onclick="closeDeleteModal()" class="btn-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+      </div>
+      <div class="modal-body"><p style="font-size:14px;color:#5a7572">Yakin ingin menghapus foto ini? Tindakan tidak dapat dibatalkan.</p></div>
+      <div class="modal-footer">
+        <button onclick="closeDeleteModal()" class="btn btn-outline">Batal</button>
+        <button onclick="doDelete()" class="btn btn-danger">Hapus</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/firebase-config.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    injectSidebar('galeri');
+    let editId = null, deleteId = null;
+
+    db.ref('galeri').on('value', snap => {
+      document.getElementById('loadingState').style.display = 'none';
+      const grid = document.getElementById('galleryGrid');
+      const empty = document.getElementById('emptyState');
+      grid.innerHTML = '';
+
+      if (!snap.exists()) {
+        document.getElementById('countBadge').textContent = '0 foto';
+        grid.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+      }
+
+      const items = Object.entries(snap.val()).sort((a,b) => (b[1].createdAt||0)-(a[1].createdAt||0));
+      document.getElementById('countBadge').textContent = `${items.length} foto`;
+      empty.style.display = 'none';
+      grid.style.display = 'grid';
+
+      items.forEach(([id, f]) => {
+        try {
+          const imgUrl = fixAdminImgUrl(f ? f.url : '');
+          const card = document.createElement('div');
+          card.className = 'gallery-admin-card';
+          card.innerHTML = `
+            <img src="${imgUrl}" alt="" onerror="this.src='../logo_yayasan.png'">
+            <div class="gallery-admin-card-body">
+              <div class="gallery-admin-card-caption">${(f && f.caption) ? f.caption : '(Tanpa keterangan)'}</div>
+              <div class="gallery-admin-card-category">${(f && f.category) ? f.category : '-'}</div>
+              <div class="gallery-admin-card-actions">
+                <button class="btn btn-outline btn-sm" onclick="openEditModal('${id}')">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="openDeleteModal('${id}')">Hapus</button>
+              </div>
+            </div>
+          `;
+          grid.appendChild(card);
+        } catch (err) {
+          console.error("Error rendering gallery item:", id, err);
+        }
+      });
+    });
+
+    function openAddModal() {
+      editId = null;
+      document.getElementById('modalTitle').textContent = 'Tambah Foto';
+      document.getElementById('fotoUrl').value = '';
+      document.getElementById('fotoCaption').value = '';
+      document.getElementById('fotoCategory').value = 'Kegiatan';
+      document.getElementById('galeriPreview').innerHTML = '<span style="color:#94a8a5;font-size:13px;">Preview</span>';
+      document.getElementById('addModal').style.display = 'flex';
+    }
+
+    function openEditModal(id) {
+      editId = id;
+      document.getElementById('modalTitle').textContent = 'Edit Foto';
+      db.ref(`galeri/${id}`).once('value').then(snap => {
+        const f = snap.val();
+        document.getElementById('fotoUrl').value = f.url || '';
+        document.getElementById('fotoCaption').value = f.caption || '';
+        document.getElementById('fotoCategory').value = f.category || 'Kegiatan';
+        previewGaleriImg();
+      });
+      document.getElementById('addModal').style.display = 'flex';
+    }
+
+    function closeAddModal() { document.getElementById('addModal').style.display = 'none'; }
+
+    function previewGaleriImg() {
+      const url = document.getElementById('fotoUrl').value.trim();
+      const box = document.getElementById('galeriPreview');
+      box.innerHTML = url ? `<img src="${fixAdminImgUrl(url)}" style="max-height:100px;max-width:100%;border-radius:6px;object-fit:cover;" onerror="this.parentElement.innerHTML='<span style=color:#e53e3e;font-size:12px>Tidak dapat dimuat</span>'">` : '<span style="color:#94a8a5;font-size:13px;">Preview</span>';
+    }
+
+    async function saveFoto() {
+      const url = document.getElementById('fotoUrl').value.trim();
+      if (!url) { showToast('URL foto wajib diisi!', 'error'); return; }
+      const btn = document.getElementById('saveFotoBtn');
+      btn.disabled = true; btn.textContent = 'Menyimpan...';
+      const payload = {
+        url,
+        caption: document.getElementById('fotoCaption').value.trim(),
+        category: document.getElementById('fotoCategory').value,
+        createdAt: editId ? ((await db.ref(`galeri/${editId}/createdAt`).once('value')).val()) : Date.now()
+      };
+      try {
+        if (editId) await db.ref(`galeri/${editId}`).update(payload);
+        else await db.ref('galeri').push(payload);
+        showToast(editId ? 'Foto berhasil diupdate!' : 'Foto berhasil ditambahkan!');
+        closeAddModal();
+      } catch(err) { showToast('Gagal: ' + err.message, 'error'); }
+      btn.disabled = false; btn.textContent = 'Simpan Foto';
+    }
+
+    function openDeleteModal(id) { deleteId = id; document.getElementById('deleteModal').style.display = 'flex'; }
+    function closeDeleteModal() { deleteId = null; document.getElementById('deleteModal').style.display = 'none'; }
+    function doDelete() {
+      db.ref(`galeri/${deleteId}`).remove().then(() => { showToast('Foto berhasil dihapus.'); closeDeleteModal(); });
+    }
+  </script>
+</body>
+</html>

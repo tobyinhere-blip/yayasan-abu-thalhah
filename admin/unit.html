@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Unit Pendidikan - Admin Yayasan Abu Thalhah</title>
+  <link rel="icon" href="../logo_yayasan.png" type="image/png">
+  <link rel="stylesheet" href="css/admin.css">
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+</head>
+<body>
+  <div id="sidebarContainer"></div>
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <div>
+        <div class="topbar-title">Unit Pendidikan</div>
+        <span class="topbar-breadcrumb">Dashboard / Unit Pendidikan</span>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn" style="background:#e4f2f0;color:#107163;border:1px solid #b2dfdb;font-weight:600;" onclick="resetToOfficialUnits()">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:18px;height:18px;margin-right:4px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          Reset ke Unit Beranda
+        </button>
+        <button class="btn btn-primary" onclick="openModal()">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Tambah Unit
+        </button>
+      </div>
+    </header>
+    <div class="admin-content">
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <div class="admin-card-title">Daftar Unit Pendidikan</div>
+          <span class="badge badge-green" id="countBadge">0 unit</span>
+        </div>
+        <div class="admin-card-body">
+          <div id="loadingState" class="loading-spinner"><div class="spinner"></div></div>
+          <table class="admin-table" id="unitTable" style="display:none">
+            <thead>
+              <tr>
+                <th style="width:60px">Gambar</th>
+                <th>Nama Unit</th>
+                <th>Jenjang</th>
+                <th style="width:80px">Urutan</th>
+                <th style="width:100px">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="unitBody"></tbody>
+          </table>
+          <div id="emptyState" class="empty-state" style="display:none">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            <p>Belum ada unit pendidikan.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="unitModal" style="display:none">
+    <div class="modal" style="max-width:540px">
+      <div class="modal-header">
+        <div class="modal-title" id="modalTitle">Tambah Unit Pendidikan</div>
+        <button onclick="closeModal()" class="btn-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid" style="gap:14px;">
+          <div class="form-group">
+            <label class="form-label">Nama Unit <span class="required">*</span></label>
+            <input type="text" id="namaInput" class="form-input" placeholder="SDIT Al Mubarak, dll...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Teks Badge / Jenjang</label>
+            <input type="text" id="jenjangInput" class="form-input" placeholder="Misal: TK/RA, SD/MI, Pondok Tahfidz...">
+            <small style="color:#718096;font-size:11px;">Dapat diisi manual teks badge apa saja sesuai keinginan.</small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Deskripsi Singkat / Profil</label>
+            <textarea id="deskripsiInput" class="form-textarea" rows="3" placeholder="Deskripsi unit pendidikan..."></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">URL Gambar Sampul / Banner</label>
+            <input type="text" id="gambarInput" class="form-input" placeholder="https://..." oninput="previewUnitImg()">
+            <div class="img-preview-box" id="unitPreview" style="min-height:70px;margin-top:8px;">
+              <span style="color:#94a8a5;font-size:13px;">Preview Sampul</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">URL Logo Unit (Lingkaran Beranda - Opsional)</label>
+            <input type="text" id="logoInput" class="form-input" placeholder="https://... atau /logo_yayasan.png" oninput="previewLogoImg()">
+            <div class="img-preview-box" id="logoPreview" style="min-height:60px;margin-top:8px;">
+              <span style="color:#94a8a5;font-size:13px;">Preview Logo</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Urutan Tampil</label>
+            <input type="number" id="urutanInput" class="form-input" value="1" min="1">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button onclick="closeModal()" class="btn btn-outline">Batal</button>
+        <button onclick="saveUnit()" class="btn btn-primary" id="saveUnitBtn">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/firebase-config.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    injectSidebar('unit');
+    let editId = null;
+
+    const officialUnits = {
+      'u-1': {
+        nama: 'Raudhatul Athfal Ath Thahirah',
+        jenjang: 'TK/RA',
+        deskripsi: 'Memberikan fondasi awal yang hangat dan menyeluruh bagi anak usia dini. Kurikulum kami memadukan kemampuan akademik dasar dengan nilai-nilai keislaman, memastikan setiap anak memulai perjalanan pendidikannya dalam lingkungan yang suportif, penuh kasih sayang, dan sarat nilai spiritual.',
+        gambar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCs4AgyWlvRo7z0FFFjvV8aIy54BnPQCaHisNECNkSESmCD607bUx4kL7yvAmoIurBJxBaCHw2_flGvAa7XXNK-ckgNlyvhIOKmNKLw_hs85Pe3todBhxGfeC0x85-NJg4sI0ugcgjti0BAMnKycoITZ2z6LTL2es4_jIlCitYIkwEshirMHlt3pWpixSNlU4F4f2qq-o1kx7iveIHLudXmF57_NHQQmqTDHVbBPuy2FG-O6KvFQc81cA',
+        logo: '/logo_yayasan.png',
+        urutan: 1,
+        createdAt: 1780000000000
+      },
+      'u-2': {
+        nama: 'Madrasah Ibtidaiyah Ihyah Assunnah',
+        jenjang: 'SD/MI',
+        deskripsi: 'Unit pendidikan dasar kami berfokus pada pengembangan kemampuan akademik yang kuat, sejalan dengan pembentukan akhlak yang baik. Kami menghadirkan kurikulum menyeluruh yang memadukan mata pelajaran umum dengan pendidikan agama Islam secara intensif, mempersiapkan siswa menjadi pribadi yang berilmu dan bertanggung jawab.',
+        gambar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBgsj03EIeWiZa0wYaSB-FhpVSSkOr_sfxSf1tC2zxwsTugDL6Mu_RxzIpXHoLSZ2bySQdvvnEpjcxejnD3fk8BUQHwrksobYg5uDzyComRKhOV7-DYX1Iuxs7xZiXUDXshMCYdj31WGCV_6u_v_6hIxX36S2kWaRXXzPRq7QsxJEVjIAVCyfIi1Pz492-Q-8DmbOSo4qmQuYlzgPhUgUbWpoZtlrCsOXhnhNt3WxyIPnGxNpsfvH5Tag',
+        logo: '/logo_yayasan.png',
+        urutan: 2,
+        createdAt: 1780000000000
+      }
+    };
+
+    db.ref('unitPendidikan').on('value', snap => {
+      document.getElementById('loadingState').style.display = 'none';
+      const tbody = document.getElementById('unitBody');
+      const tableEl = document.getElementById('unitTable');
+      const emptyEl = document.getElementById('emptyState');
+      tbody.innerHTML = '';
+
+      if (!snap.exists()) {
+        db.ref('unitPendidikan').set(officialUnits);
+        return;
+      }
+
+      const val = snap.val();
+      const hasOldData = Object.values(val).some(u => u.nama && (u.nama.includes('SDIT Al Mubarak') || u.nama.includes('Pondok Tahfidz') || u.nama.includes('KBL &')));
+      if (hasOldData) {
+        db.ref('unitPendidikan').set(officialUnits);
+        return;
+      }
+
+      const items = Object.entries(snap.val()).sort((a,b) => (a[1].urutan||99)-(b[1].urutan||99));
+      document.getElementById('countBadge').textContent = `${items.length} unit`;
+      emptyEl.style.display = 'none'; tableEl.style.display = 'table';
+
+      items.forEach(([id, u]) => {
+        const logoUrl = u.logo ? fixAdminImgUrl(u.logo) : '../logo_yayasan.png';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <img class="table-img" src="${fixAdminImgUrl(u.gambar)}" onerror="this.src='../logo_yayasan.png'" alt="Sampul">
+              <img src="${logoUrl}" style="width:32px;height:32px;border-radius:50%;object-fit:contain;background:#f0fdf4;border:1px solid #d1fae5;padding:2px;" onerror="this.src='../logo_yayasan.png'" title="Logo Beranda" alt="Logo">
+            </div>
+          </td>
+          <td style="font-weight:600">${u.nama||'-'}</td>
+          <td><span class="badge badge-green">${u.jenjang||'-'}</span></td>
+          <td style="text-align:center;color:#94a8a5">${u.urutan||1}</td>
+          <td>
+            <div style="display:flex;gap:6px;">
+              <button class="btn-icon" onclick="openEditModal('${id}')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+              <button class="btn-icon danger" onclick="doDelete('${id}')"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    });
+
+    function openModal() {
+      editId = null;
+      document.getElementById('modalTitle').textContent = 'Tambah Unit Pendidikan';
+      document.getElementById('namaInput').value = '';
+      document.getElementById('jenjangInput').value = '';
+      document.getElementById('deskripsiInput').value = '';
+      document.getElementById('gambarInput').value = '';
+      document.getElementById('logoInput').value = '';
+      document.getElementById('urutanInput').value = '1';
+      document.getElementById('unitPreview').innerHTML = '<span style="color:#94a8a5;font-size:13px;">Preview Sampul</span>';
+      document.getElementById('logoPreview').innerHTML = '<span style="color:#94a8a5;font-size:13px;">Preview Logo</span>';
+      document.getElementById('unitModal').style.display = 'flex';
+    }
+
+    function openEditModal(id) {
+      editId = id;
+      document.getElementById('modalTitle').textContent = 'Edit Unit Pendidikan';
+      db.ref(`unitPendidikan/${id}`).once('value').then(snap => {
+        const u = snap.val();
+        document.getElementById('namaInput').value = u.nama || '';
+        document.getElementById('jenjangInput').value = u.jenjang || '';
+        document.getElementById('deskripsiInput').value = u.deskripsi || '';
+        document.getElementById('gambarInput').value = u.gambar || '';
+        document.getElementById('logoInput').value = u.logo || '';
+        document.getElementById('urutanInput').value = u.urutan || 1;
+        previewUnitImg();
+        previewLogoImg();
+      });
+      document.getElementById('unitModal').style.display = 'flex';
+    }
+
+    function closeModal() { document.getElementById('unitModal').style.display = 'none'; }
+    function previewUnitImg() {
+      const url = document.getElementById('gambarInput').value.trim();
+      const box = document.getElementById('unitPreview');
+      box.innerHTML = url ? `<img src="${fixAdminImgUrl(url)}" style="max-height:70px;max-width:100%;border-radius:6px;object-fit:cover;" onerror="this.parentElement.innerHTML='<span style=color:#e53e3e;font-size:12px>Tidak dapat dimuat</span>'">` : '<span style="color:#94a8a5;font-size:13px;">Preview Sampul</span>';
+    }
+    function previewLogoImg() {
+      const url = document.getElementById('logoInput').value.trim();
+      const box = document.getElementById('logoPreview');
+      box.innerHTML = url ? `<img src="${fixAdminImgUrl(url)}" style="max-height:50px;max-width:100%;border-radius:50%;object-fit:contain;background:#f0fdf4;padding:4px;border:1px solid #d1fae5;" onerror="this.parentElement.innerHTML='<span style=color:#e53e3e;font-size:12px>Tidak dapat dimuat</span>'">` : '<span style="color:#94a8a5;font-size:13px;">Preview Logo</span>';
+    }
+
+    async function saveUnit() {
+      const nama = document.getElementById('namaInput').value.trim();
+      if (!nama) { showToast('Nama unit wajib diisi!', 'error'); return; }
+      const btn = document.getElementById('saveUnitBtn');
+      btn.disabled = true; btn.textContent = 'Menyimpan...';
+      const payload = {
+        nama,
+        jenjang: document.getElementById('jenjangInput').value.trim(),
+        deskripsi: document.getElementById('deskripsiInput').value.trim(),
+        gambar: document.getElementById('gambarInput').value.trim(),
+        logo: document.getElementById('logoInput').value.trim(),
+        urutan: parseInt(document.getElementById('urutanInput').value) || 1,
+        createdAt: Date.now()
+      };
+      try {
+        if (editId) await db.ref(`unitPendidikan/${editId}`).update(payload);
+        else await db.ref('unitPendidikan').push(payload);
+        showToast(editId ? 'Unit berhasil diupdate!' : 'Unit berhasil ditambahkan!');
+        closeModal();
+      } catch(err) { showToast('Gagal: ' + err.message, 'error'); }
+      btn.disabled = false; btn.textContent = 'Simpan';
+    }
+
+    function doDelete(id) {
+      if (confirm('Yakin ingin menghapus unit pendidikan ini?')) {
+        db.ref(`unitPendidikan/${id}`).remove().then(() => showToast('Unit berhasil dihapus.'));
+      }
+    }
+
+    function resetToOfficialUnits() {
+      if (confirm('Apakah Anda yakin ingin mereset data unit ke 2 Unit Resmi Beranda (Raudhatul Athfal Ath Thahirah & Madrasah Ibtidaiyah Ihyah Assunnah)?')) {
+        db.ref('unitPendidikan').set(officialUnits).then(() => {
+          showToast('Data unit berhasil direset ke Unit Resmi Beranda!', 'success');
+        });
+      }
+    }
+  </script>
+</body>
+</html>

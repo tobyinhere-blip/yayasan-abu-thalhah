@@ -1,0 +1,49 @@
+---
+// Layout.astro Master Layout
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+  activePage?: string;
+}
+
+const {
+  title = "Yayasan Islamic Center Abu Thalhah Al Anshari",
+  description = "Website Resmi Yayasan Islamic Center Abu Thalhah Al Anshari. Dapatkan informasi terbaru mengenai unit pendidikan, berita, dan pendaftaran.",
+  activePage = ""
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title}</title>
+  <meta name="description" content={description}>
+  <link rel="icon" href="/logo_yayasan.png" type="image/png">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body class="bg-white text-gray-900 font-poppins antialiased flex flex-col min-h-screen">
+  
+  <Header activePage={activePage} />
+  
+  <main class="flex-grow pt-20 lg:pt-24">
+    <slot />
+  </main>
+  
+  <Footer />
+
+  <!-- Firebase Realtime Sync Scripts -->
+  <script is:inline src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script is:inline src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script is:inline src="/admin/js/firebase-config.js"></script>
+  <script is:inline src="/admin/js/public-loader.js"></script>
+</body>
+</html>

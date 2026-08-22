@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tentang Yayasan - Admin Yayasan Abu Thalhah</title>
+  <link rel="icon" href="../logo_yayasan.png" type="image/png">
+  <link rel="stylesheet" href="css/admin.css">
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+</head>
+<body>
+  <div id="sidebarContainer"></div>
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <div>
+        <div class="topbar-title">Tentang Yayasan</div>
+        <span class="topbar-breadcrumb">Dashboard / Tentang Yayasan</span>
+      </div>
+      <button class="btn btn-primary" onclick="saveAll()" id="saveAllBtn">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        Simpan Semua Perubahan
+      </button>
+    </header>
+
+    <div class="admin-content">
+      <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;">
+        <!-- Sejarah -->
+        <div class="form-section" style="flex:1;min-width:400px;">
+          <div class="form-section-title">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Sejarah Yayasan
+          </div>
+          <div id="sejarahEditor"></div>
+        </div>
+
+        <!-- Visi Misi -->
+        <div class="form-section" style="flex:1;min-width:400px;">
+          <div class="form-section-title">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            Visi & Misi
+          </div>
+          <div id="visiMisiEditor"></div>
+        </div>
+      </div>
+
+      <!-- Profil Singkat -->
+      <div class="form-section" style="margin-top:0">
+        <div class="form-section-title">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Profil & Sambutan Singkat (muncul di halaman utama)
+        </div>
+        <div id="profilEditor"></div>
+      </div>
+
+      <div style="text-align:right;margin-top:4px;">
+        <button class="btn btn-primary" onclick="saveAll()" style="padding:12px 28px;">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          Simpan Semua Perubahan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    injectSidebar('tentang');
+
+    const toolbarOptions = [
+      [{ 'header': [2, 3, false] }],
+      ['bold', 'italic', 'underline'],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      ['blockquote', 'clean']
+    ];
+
+    const quillSejarah = new Quill('#sejarahEditor', { theme: 'snow', modules: { toolbar: toolbarOptions }, placeholder: 'Tulis sejarah yayasan di sini...' });
+    const quillVisiMisi = new Quill('#visiMisiEditor', { theme: 'snow', modules: { toolbar: toolbarOptions }, placeholder: 'Tulis visi & misi yayasan...' });
+    const quillProfil = new Quill('#profilEditor', { theme: 'snow', modules: { toolbar: toolbarOptions }, placeholder: 'Tulis profil/sambutan singkat yayasan...' });
+
+    // Load existing data
+    db.ref('tentang').once('value').then(snap => {
+      if (!snap.exists()) return;
+      const d = snap.val();
+      if (d.sejarah) quillSejarah.root.innerHTML = d.sejarah;
+      if (d.visiMisi) quillVisiMisi.root.innerHTML = d.visiMisi;
+      if (d.profil) quillProfil.root.innerHTML = d.profil;
+    });
+
+    async function saveAll() {
+      const btn = document.getElementById('saveAllBtn');
+      btn.disabled = true; btn.textContent = 'Menyimpan...';
+      try {
+        await db.ref('tentang').set({
+          sejarah: quillSejarah.root.innerHTML,
+          visiMisi: quillVisiMisi.root.innerHTML,
+          profil: quillProfil.root.innerHTML,
+          updatedAt: Date.now()
+        });
+        showToast('Konten berhasil disimpan!');
+      } catch (err) {
+        showToast('Gagal menyimpan: ' + err.message, 'error');
+      }
+      btn.disabled = false;
+      btn.innerHTML = `<svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Simpan Semua Perubahan`;
+    }
+  </script>
+</body>
+</html>

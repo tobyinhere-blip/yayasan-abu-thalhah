@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Form Berita - Admin Yayasan Abu Thalhah</title>
+  <link rel="icon" href="../logo_yayasan.png" type="image/png">
+  <link rel="stylesheet" href="css/admin.css">
+  <!-- Quill Rich Text Editor -->
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+</head>
+<body>
+  <div id="sidebarContainer"></div>
+
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <div>
+        <div class="topbar-title" id="pageHeading">Tambah Berita</div>
+        <span class="topbar-breadcrumb">Dashboard / Berita / Form</span>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <a href="berita.html" class="btn btn-outline">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+          Kembali
+        </a>
+        <button class="btn btn-primary" onclick="saveBerita()" id="saveBtn">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+          Simpan Berita
+        </button>
+      </div>
+    </header>
+
+    <div class="admin-content">
+      <div style="display:grid; grid-template-columns: 1fr 340px; gap:20px; align-items:start;">
+
+        <!-- Kiri: Form utama -->
+        <div>
+          <div class="form-section">
+            <div class="form-section-title">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              Informasi Berita
+            </div>
+            <div class="form-grid" style="gap:16px;">
+              <div class="form-group">
+                <label class="form-label">Judul Berita <span class="required">*</span></label>
+                <input type="text" id="titleInput" class="form-input" placeholder="Masukkan judul berita yang menarik..." oninput="updateSlug()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Slug URL (ID) <span class="required">*</span></label>
+                <input type="text" id="slugInput" class="form-input" placeholder="judul-berita-url-friendly">
+                <div class="form-hint">Digunakan sebagai alamat URL halaman berita. Contoh: <code>peletakan-batu-pertama</code></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+              Isi Berita
+            </div>
+            <div id="quillEditor" style="background:#fff;"></div>
+          </div>
+        </div>
+
+        <!-- Kanan: Meta info -->
+        <div style="display:flex;flex-direction:column;gap:20px;">
+          <div class="form-section">
+            <div class="form-section-title">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+              Kategori & Meta
+            </div>
+            <div class="form-grid" style="gap:14px;">
+              <div class="form-group">
+                <label class="form-label">Kategori <span class="required">*</span></label>
+                <select id="categoryInput" class="form-select">
+                  <option value="">-- Pilih Kategori --</option>
+                  <option value="Pengumuman">Pengumuman</option>
+                  <option value="Prestasi Yayasan">Prestasi Yayasan</option>
+                  <option value="Kegiatan Santri">Kegiatan Santri</option>
+                  <option value="Kajian Dakwah">Kajian Dakwah</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Penulis</label>
+                <input type="text" id="authorInput" class="form-input" value="Admin Yayasan">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tanggal Tayang</label>
+                <input type="date" id="dateInput" class="form-input">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              Foto Utama
+            </div>
+            <div class="form-group">
+              <label class="form-label">URL Foto <span class="required">*</span></label>
+              <input type="text" id="imageInput" class="form-input" placeholder="https://..." oninput="previewImage()">
+              <div class="form-hint">Tempelkan URL gambar dari sumber eksternal (Google Drive, website, dll)</div>
+            </div>
+            <div class="img-preview-box" id="imgPreview">
+              <span style="color:#94a8a5;font-size:13px;">Preview foto akan muncul di sini</span>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" onclick="saveBerita()" style="width:100%;justify-content:center;padding:13px;">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Simpan Berita
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    injectSidebar('berita');
+
+    // Set default date
+    document.getElementById('dateInput').value = new Date().toISOString().split('T')[0];
+
+    // Init Quill editor
+    const quill = new Quill('#quillEditor', {
+      theme: 'snow',
+      placeholder: 'Tulis isi berita di sini...',
+      modules: {
+        toolbar: [
+          [{ 'header': [2, 3, false] }],
+          ['bold', 'italic', 'underline'],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          ['blockquote', 'link', 'image'],
+          ['clean']
+        ]
+      }
+    });
+
+    // Check edit mode
+    const params = new URLSearchParams(window.location.search);
+    const editId = params.get('id');
+    let isEdit = false;
+    let originalSlug = null;
+
+    if (editId) {
+      isEdit = true;
+      originalSlug = editId;
+      document.getElementById('pageHeading').textContent = 'Edit Berita';
+      document.getElementById('saveBtn').innerHTML = `
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        Update Berita
+      `;
+      // Load existing data
+      db.ref(`berita/${editId}`).once('value').then(snap => {
+        if (!snap.exists()) { alert('Berita tidak ditemukan'); history.back(); return; }
+        const art = snap.val();
+        document.getElementById('titleInput').value = art.title || '';
+        document.getElementById('slugInput').value = editId;
+        document.getElementById('categoryInput').value = art.category || '';
+        document.getElementById('authorInput').value = art.author || 'Admin Yayasan';
+        document.getElementById('imageInput').value = art.image || '';
+        // Parse date back to YYYY-MM-DD
+        const d = art.dateISO || new Date().toISOString().split('T')[0];
+        document.getElementById('dateInput').value = d;
+        quill.root.innerHTML = art.body || '';
+        previewImage();
+      });
+    }
+
+    function updateSlug() {
+      if (!isEdit) {
+        document.getElementById('slugInput').value = toSlug(document.getElementById('titleInput').value);
+      }
+    }
+
+    function previewImage() {
+      const url = document.getElementById('imageInput').value.trim();
+      const box = document.getElementById('imgPreview');
+      if (url) {
+        box.innerHTML = `<img src="${url}" alt="" onerror="this.parentElement.innerHTML='<span style=color:#e53e3e;font-size:12px>URL gambar tidak dapat dimuat</span>'">`;
+      } else {
+        box.innerHTML = `<span style="color:#94a8a5;font-size:13px;">Preview foto akan muncul di sini</span>`;
+      }
+    }
+
+    function formatDisplayDate(isoDate) {
+      const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'];
+      const d = new Date(isoDate);
+      return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
+    async function saveBerita() {
+      const title = document.getElementById('titleInput').value.trim();
+      const slug = document.getElementById('slugInput').value.trim();
+      const category = document.getElementById('categoryInput').value;
+      const author = document.getElementById('authorInput').value.trim() || 'Admin Yayasan';
+      const dateISO = document.getElementById('dateInput').value;
+      const image = document.getElementById('imageInput').value.trim();
+      const body = quill.root.innerHTML;
+
+      if (!title) { showToast('Judul berita wajib diisi!', 'error'); return; }
+      if (!slug) { showToast('Slug URL wajib diisi!', 'error'); return; }
+      if (!category) { showToast('Pilih kategori terlebih dahulu!', 'error'); return; }
+      if (!image) { showToast('URL foto utama wajib diisi!', 'error'); return; }
+
+      const btn = document.getElementById('saveBtn');
+      btn.disabled = true;
+      btn.textContent = 'Menyimpan...';
+
+      const payload = {
+        title, category, author,
+        date: formatDisplayDate(dateISO),
+        dateISO,
+        image, body,
+        slug,
+        createdAt: isEdit ? (await db.ref(`berita/${originalSlug}/createdAt`).once('value')).val() : Date.now(),
+        updatedAt: Date.now()
+      };
+
+      try {
+        if (isEdit && originalSlug !== slug) {
+          // Slug changed: delete old, create new
+          await db.ref(`berita/${originalSlug}`).remove();
+        }
+        await db.ref(`berita/${slug}`).set(payload);
+        showToast(isEdit ? 'Berita berhasil diupdate!' : 'Berita berhasil ditambahkan!');
+        setTimeout(() => { window.location.href = 'berita.html'; }, 1200);
+      } catch (err) {
+        showToast('Gagal menyimpan: ' + err.message, 'error');
+        btn.disabled = false;
+        btn.textContent = isEdit ? 'Update Berita' : 'Simpan Berita';
+      }
+    }
+  </script>
+</body>
+</html>

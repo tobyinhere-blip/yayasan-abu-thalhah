@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard Admin - Yayasan Abu Thalhah</title>
+  <link rel="icon" href="../logo_yayasan.png" type="image/png">
+  <link rel="stylesheet" href="css/admin.css">
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+</head>
+<body>
+  <div id="sidebarContainer"></div>
+
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <div>
+        <div class="topbar-title">Dashboard</div>
+        <span class="topbar-breadcrumb">Selamat datang di panel admin yayasan</span>
+      </div>
+      <div class="topbar-actions" style="display:flex;gap:10px;">
+        <a href="seed.html" class="btn btn-primary btn-sm" style="background:#059669;border-color:#059669;">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+          Impor Data Bawaan Website
+        </a>
+        <a href="../index.html" target="_blank" class="btn btn-outline btn-sm">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+          Lihat Website
+        </a>
+      </div>
+    </header>
+
+    <div class="admin-content">
+      <!-- Seed Banner if DB Empty -->
+      <div id="seedBanner" style="display:none;background:linear-gradient(135deg,#ecfdf5 0%,#d1fae5 100%);border:1px solid #a7f3d0;border-radius:14px;padding:20px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 4px 12px rgba(16,113,99,0.08);">
+        <div style="display:flex;align-items:center;gap:16px;">
+          <div style="width:48px;height:48px;border-radius:12px;background:#107163;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">💡</div>
+          <div>
+            <div style="font-weight:700;font-size:15px;color:#065f46;">Database Firebase Masih Kosong!</div>
+            <div style="font-size:13px;color:#047857;margin-top:2px;">Klik tombol di samping untuk mengimpor otomatis seluruh konten bawaan website (9 Berita, Foto Galeri, Profil Pengurus, Unit Pendidikan, & Tentang Kami) ke Firebase.</div>
+          </div>
+        </div>
+        <a href="seed.html" class="btn btn-primary" style="white-space:nowrap;background:#107163;padding:10px 20px;">
+          🚀 Impor Data Sekarang
+        </a>
+      </div>
+      <!-- Stats -->
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+          </div>
+          <div>
+            <div class="stat-value" id="countBerita">-</div>
+            <div class="stat-label">Total Berita</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon teal">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          </div>
+          <div>
+            <div class="stat-value" id="countGaleri">-</div>
+            <div class="stat-label">Foto Galeri</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon blue">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </div>
+          <div>
+            <div class="stat-value" id="countPengurus">-</div>
+            <div class="stat-label">Profil Pengurus</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+          </div>
+          <div>
+            <div class="stat-value" id="countUnit">-</div>
+            <div class="stat-label">Unit Pendidikan</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Berita -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <div class="admin-card-title">Berita Terbaru</div>
+          <a href="berita.html" class="btn btn-primary btn-sm">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+            Kelola Berita
+          </a>
+        </div>
+        <div class="admin-card-body">
+          <div id="recentBeritaState" class="loading-spinner"><div class="spinner"></div></div>
+          <table class="admin-table" id="recentBeritaTable" style="display:none">
+            <thead>
+              <tr>
+                <th>Foto</th>
+                <th>Judul</th>
+                <th>Kategori</th>
+                <th>Tanggal</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="recentBeritaBody"></tbody>
+          </table>
+          <div id="recentBeritaEmpty" class="empty-state" style="display:none">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+            <p>Belum ada berita. <a href="berita-form.html" style="color:#107163">Tambah berita pertama</a></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div style="display:grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap:16px; margin-top:20px;">
+        <a href="berita-form.html" class="stat-card" style="cursor:pointer; text-decoration:none; flex-direction:column; align-items:flex-start; gap:10px;">
+          <div class="stat-icon green" style="width:40px;height:40px;">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:20px;height:20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          </div>
+          <div>
+            <div style="font-weight:700;font-size:14px;">Tambah Berita</div>
+            <div class="stat-label">Buat artikel baru</div>
+          </div>
+        </a>
+        <a href="galeri.html" class="stat-card" style="cursor:pointer; text-decoration:none; flex-direction:column; align-items:flex-start; gap:10px;">
+          <div class="stat-icon teal" style="width:40px;height:40px;">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:20px;height:20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          </div>
+          <div>
+            <div style="font-weight:700;font-size:14px;">Kelola Galeri</div>
+            <div class="stat-label">Tambah atau hapus foto</div>
+          </div>
+        </a>
+        <a href="pengurus.html" class="stat-card" style="cursor:pointer; text-decoration:none; flex-direction:column; align-items:flex-start; gap:10px;">
+          <div class="stat-icon blue" style="width:40px;height:40px;">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:20px;height:20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          </div>
+          <div>
+            <div style="font-weight:700;font-size:14px;">Profil Pengurus</div>
+            <div class="stat-label">Edit struktur pengurus</div>
+          </div>
+        </a>
+        <a href="tentang.html" class="stat-card" style="cursor:pointer; text-decoration:none; flex-direction:column; align-items:flex-start; gap:10px;">
+          <div class="stat-icon amber" style="width:40px;height:40px;">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" style="width:20px;height:20px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          </div>
+          <div>
+            <div style="font-weight:700;font-size:14px;">Tentang Yayasan</div>
+            <div class="stat-label">Edit sejarah & visi misi</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/firebase-config.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    injectSidebar('dashboard');
+
+    // Load statistics
+    function loadStats() {
+      // Berita
+      db.ref('berita').once('value').then(snap => {
+        const hasData = snap.exists() && Object.keys(snap.val()).length > 0;
+        const count = hasData ? Object.keys(snap.val()).length : 0;
+        document.getElementById('countBerita').textContent = count;
+        document.getElementById('seedBanner').style.display = hasData ? 'none' : 'flex';
+        loadRecentBerita(snap.val());
+      });
+      // Galeri
+      db.ref('galeri').once('value').then(snap => {
+        document.getElementById('countGaleri').textContent = snap.exists() ? Object.keys(snap.val()).length : 0;
+      });
+      // Pengurus
+      db.ref('pengurus').once('value').then(snap => {
+        document.getElementById('countPengurus').textContent = snap.exists() ? Object.keys(snap.val()).length : 0;
+      });
+      // Unit
+      db.ref('unitPendidikan').once('value').then(snap => {
+        document.getElementById('countUnit').textContent = snap.exists() ? Object.keys(snap.val()).length : 0;
+      });
+    }
+
+    function loadRecentBerita(data) {
+      const loadingEl = document.getElementById('recentBeritaState');
+      const tableEl = document.getElementById('recentBeritaTable');
+      const emptyEl = document.getElementById('recentBeritaEmpty');
+      const tbody = document.getElementById('recentBeritaBody');
+      loadingEl.style.display = 'none';
+
+      if (!data || Object.keys(data).length === 0) {
+        emptyEl.style.display = 'block';
+        return;
+      }
+
+      const sorted = Object.entries(data).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0)).slice(0, 5);
+      tbody.innerHTML = '';
+      sorted.forEach(([id, art]) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><img class="table-img" src="${fixAdminImgUrl(art.image)}" alt="" onerror="this.src='../logo_yayasan.png'"></td>
+          <td style="max-width:260px;font-weight:600;font-size:13px;">${art.title || '-'}</td>
+          <td><span class="badge badge-green">${art.category || '-'}</span></td>
+          <td style="color:#94a8a5;font-size:12px;">${art.date || '-'}</td>
+          <td>
+            <div style="display:flex;gap:6px;">
+              <a href="berita-form.html?id=${id}" class="btn-icon" title="Edit">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              </a>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      tableEl.style.display = 'table';
+    }
+
+    loadStats();
+  </script>
+</body>
+</html>

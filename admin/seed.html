@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inisialisasi Data Website - Admin Yayasan</title>
+  <link rel="icon" href="../logo_yayasan.png" type="image/png">
+  <link rel="stylesheet" href="css/admin.css">
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+</head>
+<body style="background:linear-gradient(135deg,#0a2e28 0%,#107163 60%,#1a9482 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:20px;box-shadow:0 24px 64px rgba(0,0,0,0.3);width:100%;max-width:540px;padding:44px 40px;text-align:center;">
+    <img src="../logo_yayasan.png" style="width:64px;height:64px;object-fit:contain;margin-bottom:16px;" onerror="this.style.display='none'">
+    <h1 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:22px;font-weight:800;color:#1a2e2b;margin-bottom:8px;">Impor Data Bawaan Website</h1>
+    <p style="font-size:13.5px;color:#5a7572;margin-bottom:24px;line-height:1.6;">
+      Proses ini akan mengimpor seluruh konten statis awal website (9 Berita, Foto Galeri, Profil Pengurus, Unit Pendidikan, & Tentang Kami) ke dalam database Firebase Anda.
+    </p>
+
+    <div id="seedStatus" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:20px;margin-bottom:24px;text-align:left;">
+      <div style="font-weight:700;color:#107163;margin-bottom:8px;display:flex;align-items:center;gap:8px;">
+        <span style="font-size:20px;">⏳</span> Progres Inisialisasi:
+      </div>
+      <ul id="logList" style="font-size:13px;color:#374151;margin:0;padding-left:20px;line-height:1.8;"></ul>
+    </div>
+
+    <button onclick="startSeeding()" id="seedBtn" style="width:100%;padding:14px;background:#107163;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;box-shadow:0 8px 20px rgba(16,113,99,0.3);">
+      🚀 Impor Data Ke Firebase Sekarang
+    </button>
+
+    <div style="margin-top:16px;">
+      <a href="index.html" style="font-size:13px;color:#94a8a5;text-decoration:none;">← Kembali ke Dashboard Admin</a>
+    </div>
+  </div>
+
+  <script src="js/firebase-config.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    const initialData = {
+      berita: {
+        'peletakan-batu': {
+          title: "Pembangunan Gedung Baru SDIT Al Mubarak Resmi Dimulai dengan Peletakan Batu Pertama",
+          author: "Admin Yayasan",
+          date: "8 Jan 2026",
+          dateISO: "2026-01-08",
+          category: "Pengumuman",
+          image: "https://cms.sitalmubarak.com/wp-content/uploads/2026/01/IMG_9776-scaled.jpg",
+          body: `<p class="mb-4">Sebagai wujud komitmen dalam meningkatkan kualitas pendidikan Islam, <strong>SDIT Al Mubarak</strong> secara resmi memulai pembangunan dan renovasi fasilitas sekolah. Kegiatan ini diawali dengan <strong>peletakan batu pertama</strong>, yang menjadi simbol dimulainya ikhtiar bersama dalam menghadirkan lingkungan belajar yang lebih nyaman, aman, dan representatif bagi para peserta didik.</p><p class="mb-4">Pembangunan ini bukan sekadar proyek fisik, melainkan bagian dari visi besar SDIT Al Mubarak dalam mencetak generasi Qur’ani yang berilmu, berakhlak mulia, dan siap menghadapi tantangan masa depan.</p><h2 class="text-xl font-bold text-gray-900 mt-6 mb-3">Makna Peletakan Batu Pertama</h2><p class="mb-4">Prosesi peletakan batu pertama dilaksanakan dengan penuh khidmat dan doa, sebagai bentuk harapan agar setiap proses pembangunan diberi kelancaran dan keberkahan oleh Allah ﷻ.</p>`,
+          slug: "peletakan-batu",
+          createdAt: 1767830400000
+        },
+        'juara-mtq': {
+          title: "Santri Yayasan Abu Thalhah Raih Juara Musabaqah Tilawatil Qur'an (MTQ) Tingkat Provinsi",
+          author: "Admin Yayasan",
+          date: "29 Jul 2026",
+          dateISO: "2026-07-29",
+          category: "Prestasi Yayasan",
+          image: "siswi-berprestasii.png",
+          body: `<p>Prestasi membanggakan kembali diraih oleh santri Yayasan Islamic Center Abu Thalhah Al Anshari dalam kejuaraan MTQ tingkat provinsi. Dengan persiapan matang dan bimbingan para asatidzah, para santri mampu menunjukkan bacaan Al-Qur'an yang tajwid dan merdu.</p>`,
+          slug: "juara-mtq",
+          createdAt: 1785283200000
+        },
+        'psb': {
+          title: "Penerimaan Santri Baru (PSB) Tahun Ajaran 2026/2027 Telah Resmi Dibuka",
+          author: "Admin Yayasan",
+          date: "25 Jul 2026",
+          dateISO: "2026-07-25",
+          category: "Pengumuman",
+          image: "cta-image.png",
+          body: `<p>Yayasan Islamic Center Abu Thalhah Al Anshari mengundang putra-putri terbaik bangsa untuk bergabung menjadi generasi Rabbani yang hafal Al-Qur'an dan berprestasi secara akademik.</p>`,
+          slug: "psb",
+          createdAt: 1784937600000
+        },
+        'parenting': {
+          title: "Kajian Parenting Islami: Mendidik Anak dengan Keteladanan Akhlak Mulia",
+          author: "Admin Yayasan",
+          date: "23 Jul 2026",
+          dateISO: "2026-07-23",
+          category: "Kajian Dakwah",
+          image: "sman3palu.sch.id/uploads/berita/1785161723_WhatsApp Image 2026-07-26 at 14.42.44.jpeg",
+          body: `<p>Menghadirkan narasumber ahli di bidang psikologi Islam, Yayasan sukses menyelenggarakan kajian parenting bulanan untuk wali santri dan masyarakat umum.</p>`,
+          slug: "parenting",
+          createdAt: 1784764800000
+        },
+        'program-tahfidz': {
+          title: "Program Unggulan Tahfidz Al-Qur'an & Olahraga Sunnah Memanah Santri",
+          author: "Admin Yayasan",
+          date: "20 Jul 2026",
+          dateISO: "2026-07-20",
+          category: "Kajian Dakwah",
+          image: "sman3palu.sch.id/uploads/berita/1784805517_Screenshot 2026-07-23 at 19.17.55.png",
+          body: `<p>Kegiatan ekstrakurikuler santri senantiasa diisi dengan hafalan Al-Qur'an dan olahraga yang disunnahkan seperti memanah dan ketangkasan fisik.</p>`,
+          slug: "program-tahfidz",
+          createdAt: 1784505600000
+        },
+        'bakti-sosial': {
+          title: "Yayasan Abu Thalhah Gelar Bakti Sosial & Penyaluran Sembako Untuk Warga",
+          author: "Admin Yayasan",
+          date: "15 Jul 2026",
+          dateISO: "2026-07-15",
+          category: "Kegiatan Santri",
+          image: "logo_yayasan.png",
+          body: `<p>Sebagai bentuk rasa syukur dan kepedulian sosial, yayasan mengadakan bakti sosial tebar paket sembako untuk masyarakat di sekitar lingkungan yayasan.</p>`,
+          slug: "bakti-sosial",
+          createdAt: 1784073600000
+        },
+        'workshop-guru': {
+          title: "Workshop Peningkatan Kompetensi & Karakter Pendidik Generasi Rabbani",
+          author: "Admin Yayasan",
+          date: "10 Jul 2026",
+          dateISO: "2026-07-10",
+          category: "Pengumuman",
+          image: "foto_kepala_yayasan.webp",
+          body: `<p>Pelatihan berkala bagi seluruh tenaga pendidik guna meningkatkan mutu pembelajaran dan pembinaan akhlak para santri.</p>`,
+          slug: "workshop-guru",
+          createdAt: 1783641600000
+        },
+        'infaq-wakaf': {
+          title: "Penyaluran Infaq & Wakaf Produktif Untuk Pembangunan Fasilitas Santri",
+          author: "Admin Yayasan",
+          date: "05 Jul 2026",
+          dateISO: "2026-07-05",
+          category: "Prestasi Yayasan",
+          image: "cta-image.png",
+          body: `<p>Laporan pertanggungjawaban penyaluran dana infaq dan wakaf muhsinin untuk pembebasan lahan dan perluasan ruang kelas santri.</p>`,
+          slug: "infaq-wakaf",
+          createdAt: 1783209600000
+        },
+        'latihan-pemimpin': {
+          title: "Pelatihan Kepemimpinan & Kemandirian Santri Dalam Rangkaian MABIT",
+          author: "Admin Yayasan",
+          date: "01 Jul 2026",
+          dateISO: "2026-07-01",
+          category: "Kegiatan Santri",
+          image: "siswi-berprestasii.png",
+          body: `<p>Kegiatan Malam Bina Iman dan Taqwa (MABIT) melatih kedisiplinan, kemandirian, dan kepemimpinan para santri sejak dini.</p>`,
+          slug: "latihan-pemimpin",
+          createdAt: 1782864000000
+        }
+      },
+      galeri: {
+        'foto-1': { url: 'siswi-berprestasii.png', caption: 'Kegiatan Wisuda Tahfidz & Prestasi Santri Yayasan Abu Thalhah', category: 'Prestasi', createdAt: 1785283200000 },
+        'foto-2': { url: 'cta-image.png', caption: 'Pelaksanaan Program Bina Karakter & Akhlak Santri Rabbani', category: 'Kegiatan', createdAt: 1784937600000 },
+        'foto-3': { url: 'foto_kepala_yayasan.webp', caption: 'Pengarahan & Kunjungan Pembina Yayasan Abu Thalhah Al Anshari', category: 'Kegiatan', createdAt: 1784505600000 },
+        'foto-4': { url: 'logo_yayasan.png', caption: 'Dokumentasi Bakti Sosial & Program Peduli Masyarakat', category: 'Kegiatan', createdAt: 1784073600000 }
+      },
+      pengurus: {
+        'p-1': { nama: 'Ustadz Pembina Yayasan', jabatan: 'Pembina Yayasan', foto: 'foto_kepala_yayasan.webp', urutan: 1, createdAt: 1780000000000 },
+        'p-2': { nama: 'Ketua Yayasan Abu Thalhah', jabatan: 'Ketua Yayasan', foto: 'logo_yayasan.png', urutan: 2, createdAt: 1780000000000 },
+        'p-3': { nama: 'Sekretaris Yayasan', jabatan: 'Sekretaris', foto: 'logo_yayasan.png', urutan: 3, createdAt: 1780000000000 },
+        'p-4': { nama: 'Bendahara Yayasan', jabatan: 'Bendahara', foto: 'logo_yayasan.png', urutan: 4, createdAt: 1780000000000 }
+      },
+      unitPendidikan: {
+        'u-1': {
+          nama: 'Raudhatul Athfal Ath Thahirah',
+          jenjang: 'PAUD',
+          deskripsi: 'Memberikan fondasi awal yang hangat dan menyeluruh bagi anak usia dini. Kurikulum kami memadukan kemampuan akademik dasar dengan nilai-nilai keislaman, memastikan setiap anak memulai perjalanan pendidikannya dalam lingkungan yang suportif, penuh kasih sayang, dan sarat nilai spiritual.',
+          gambar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCs4AgyWlvRo7z0FFFjvV8aIy54BnPQCaHisNECNkSESmCD607bUx4kL7yvAmoIurBJxBaCHw2_flGvAa7XXNK-ckgNlyvhIOKmNKLw_hs85Pe3todBhxGfeC0x85-NJg4sI0ugcgjti0BAMnKycoITZ2z6LTL2es4_jIlCitYIkwEshirMHlt3pWpixSNlU4F4f2qq-o1kx7iveIHLudXmF57_NHQQmqTDHVbBPuy2FG-O6KvFQc81cA',
+          urutan: 1,
+          createdAt: 1780000000000
+        },
+        'u-2': {
+          nama: 'Madrasah Ibtidaiyah Ihyah Assunnah',
+          jenjang: 'SD',
+          deskripsi: 'Unit pendidikan dasar kami berfokus pada pengembangan kemampuan akademik yang kuat, sejalan dengan pembentukan akhlak yang baik. Kami menghadirkan kurikulum menyeluruh yang memadukan mata pelajaran umum dengan pendidikan agama Islam secara intensif, mempersiapkan siswa menjadi pribadi yang berilmu dan bertanggung jawab.',
+          gambar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBgsj03EIeWiZa0wYaSB-FhpVSSkOr_sfxSf1tC2zxwsTugDL6Mu_RxzIpXHoLSZ2bySQdvvnEpjcxejnD3fk8BUQHwrksobYg5uDzyComRKhOV7-DYX1Iuxs7xZiXUDXshMCYdj31WGCV_6u_v_6hIxX36S2kWaRXXzPRq7QsxJEVjIAVCyfIi1Pz492-Q-8DmbOSo4qmQuYlzgPhUgUbWpoZtlrCsOXhnhNt3WxyIPnGxNpsfvH5Tag',
+          urutan: 2,
+          createdAt: 1780000000000
+        }
+      },
+      tentang: {
+        sejarah: `<p>Yayasan Islamic Center Abu Thalhah Al Anshari didirikan sebagai wujud komitmen dalam menghadirkan pendidikan Islam berkualitas di Kota Palu dan sekitarnya. Berawal dari semangat dakwah dan kepedulian terhadap pembentukan karakter generasi muda, yayasan terus berkembang mengelola berbagai unit pendidikan dan kegiatan sosial keagamaan.</p>`,
+        visiMisi: `<h3>Visi</h3><p>Menjadi pusat pendidikan dan dakwah Islam yang unggul, berakhlak mulia, dan berlandaskan Al-Qur'an serta As-Sunnah.</p><br><h3>Misi</h3><ul><li>Menyelenggarakan pendidikan Islam terpadu yang berkualitas.</li><li>Mencetak huffazh Al-Qur'an yang berpemahaman lurus dan berakhlak karimah.</li><li>Meningkatkan kepedulian sosial dan pemberdayaan ummat.</li></ul>`,
+        profil: `<p>Yayasan Islamic Center Abu Thalhah Al Anshari berdedikasi penuh untuk membina generasi Rabbani yang kokoh dalam iman, unggul dalam ilmu, dan bermanfaat bagi masyarakat.</p>`,
+        updatedAt: Date.now()
+      },
+      beranda: {
+        heroSubtitle: "Yayasan Islamic Center Abu Thalhah Al Anshari",
+        heroTitle: "Melahirkan Generasi Qur'ani dan Sunnah yang Cerdas, Kreatif, Berkarakter dan Berwawasan Pancasila dan Teknologi.",
+        heroDesc: "Mewujudkan lembaga pendidikan Islam terpadu yang unggul dalam melahirkan huffazh Al-Qur'an dan pemuda berkarakter mulia.",
+        heroVideoUrl: "https://www.youtube.com/watch?v=9U-sTSTCpfs",
+        heroCta1Text: "Unit Pendidikan",
+        heroCta1Link: "unit-pendidikan.html",
+        heroCta2Text: "Tentang Kami",
+        heroCta2Link: "tentang-kami.html",
+        announcementText: "Penerimaan Santri Baru (PSB) Tahun Ajaran 2026/2027 Telah Resmi Dibuka! Segera daftarkan putra-putri Anda.",
+        announcementLink: "berita.html",
+        announcementStatus: "active",
+        pimpinanNama: "Ustadz Pembina Yayasan",
+        pimpinanJabatan: "Ketua Yayasan Islamic Center Abu Thalhah Al Anshari",
+        pimpinanFoto: "foto_kepala_yayasan.webp",
+        sambutanHtml: `<p>Bismillah, Selamat datang di official website Yayasan Islamic Center Abu Thalhah Al Anshari. Kami berkomitmen untuk menyajikan pendidikan islami yang mengintegrasikan Al-Qur'an, As-Sunnah, dan keunggulan akademik bagi generasi masa depan.</p>`,
+        statSantri: "500+",
+        statPengajar: "45+",
+        statUnit: "4",
+        statHafiz: "120+",
+        updatedAt: Date.now()
+      },
+      header_footer: {
+        headerBrandSubtitle: "Yayasan Islamic Center",
+        headerLogoUrl: "logo_yayasan.png",
+        headerCtaText: "Hubungi Kami",
+        headerCtaLink: "https://api.whatsapp.com/send/?phone=+62 852-9222-7887&text&type=phone_number&app_absent=0",
+        footerAddress: "Jl. Emy Saelan No. 84, Tatura Selatan, Palu Selatan, Kota Palu, Sulawesi Tengah",
+        footerPhone: "+62 852-9222-7887",
+        footerEmail: "info@abuthalhah.or.id",
+        socialFacebook: "https://facebook.com",
+        socialInstagram: "https://instagram.com",
+        socialYoutube: "https://youtube.com",
+        footerCopyright: "© 2026 Yayasan Islamic Center Abu Thalhah Al Anshari. All rights reserved.",
+        updatedAt: Date.now()
+      }
+    };
+
+    async function startSeeding() {
+      const btn = document.getElementById('seedBtn');
+      const statusBox = document.getElementById('seedStatus');
+      const logList = document.getElementById('logList');
+      btn.disabled = true; btn.textContent = 'Memproses Impor Data...';
+      statusBox.style.display = 'block';
+      logList.innerHTML = '';
+
+      function addLog(msg) {
+        const li = document.createElement('li');
+        li.innerHTML = msg;
+        logList.appendChild(li);
+      }
+
+      try {
+        addLog('Mengimpor data Berita (9 Artikel)... ⏳');
+        await db.ref('berita').set(initialData.berita);
+        addLog('✅ <strong>Berita</strong> berhasil diimpor!');
+
+        addLog('Mengimpor data Galeri Foto... ⏳');
+        await db.ref('galeri').set(initialData.galeri);
+        addLog('✅ <strong>Galeri Foto</strong> berhasil diimpor!');
+
+        addLog('Mengimpor Profil Pengurus... ⏳');
+        await db.ref('pengurus').set(initialData.pengurus);
+        addLog('✅ <strong>Profil Pengurus</strong> berhasil diimpor!');
+
+        addLog('Mengimpor Unit Pendidikan... ⏳');
+        await db.ref('unitPendidikan').set(initialData.unitPendidikan);
+        addLog('✅ <strong>Unit Pendidikan</strong> berhasil diimpor!');
+
+        addLog('Mengimpor Tentang Kami (Sejarah & Visi Misi)... ⏳');
+        await db.ref('tentang').set(initialData.tentang);
+        addLog('✅ <strong>Tentang Kami</strong> berhasil diimpor!');
+
+        addLog('Mengimpor Pengaturan Beranda... ⏳');
+        await db.ref('beranda').set(initialData.beranda);
+        addLog('✅ <strong>Pengaturan Beranda</strong> berhasil diimpor!');
+
+        addLog('Mengimpor Pengaturan Header & Footer... ⏳');
+        await db.ref('header_footer').set(initialData.header_footer);
+        addLog('✅ <strong>Header & Footer</strong> berhasil diimpor!');
+
+        addLog('<br><strong style="color:#107163;font-size:14px;">🎉 Seluruh data bawaan berhasil diimpor ke Firebase!</strong>');
+        btn.style.background = '#059669';
+        btn.textContent = '✅ Selesai! Kembali ke Dashboard';
+        btn.disabled = false;
+        btn.onclick = () => { window.location.href = 'index.html'; };
+      } catch (err) {
+        addLog(`<span style="color:#e53e3e">❌ Gagal mengimpor: ${err.message}</span>`);
+        btn.disabled = false; btn.textContent = 'Coba Lagi';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kelola Berita - Admin Yayasan Abu Thalhah</title>
+  <link rel="icon" href="../logo_yayasan.png" type="image/png">
+  <link rel="stylesheet" href="css/admin.css">
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+</head>
+<body>
+  <div id="sidebarContainer"></div>
+
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <div>
+        <div class="topbar-title">Berita & Artikel</div>
+        <span class="topbar-breadcrumb">Dashboard / Berita</span>
+      </div>
+      <a href="berita-form.html" class="btn btn-primary">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Tambah Berita
+      </a>
+    </header>
+
+    <div class="admin-content">
+      <div class="filter-bar">
+        <div class="search-input-wrap">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0"/></svg>
+          <input type="text" id="searchInput" placeholder="Cari berita..." oninput="filterBerita()">
+        </div>
+        <select class="form-select" id="categoryFilter" style="width:200px" onchange="filterBerita()">
+          <option value="">Semua Kategori</option>
+          <option>Pengumuman</option>
+          <option>Prestasi Yayasan</option>
+          <option>Kegiatan Santri</option>
+          <option>Kajian Dakwah</option>
+        </select>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <div class="admin-card-title" id="listTitle">Daftar Berita</div>
+          <span class="badge badge-green" id="countBadge">0 artikel</span>
+        </div>
+        <div class="admin-card-body">
+          <div id="loadingState" class="loading-spinner"><div class="spinner"></div></div>
+          <table class="admin-table" id="beritaTable" style="display:none">
+            <thead>
+              <tr>
+                <th style="width:60px">Foto</th>
+                <th>Judul Berita</th>
+                <th style="width:140px">Kategori</th>
+                <th style="width:100px">Tanggal</th>
+                <th style="width:80px">Penulis</th>
+                <th style="width:100px">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="beritaBody"></tbody>
+          </table>
+          <div id="emptyState" class="empty-state" style="display:none">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+            <p>Belum ada berita. <a href="berita-form.html" style="color:#107163;font-weight:600">Tambah berita pertama →</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirm Modal -->
+  <div class="modal-overlay" id="deleteModal" style="display:none">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title" style="color:#e53e3e">Hapus Berita</div>
+        <button onclick="closeDeleteModal()" class="btn-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:14px;color:#5a7572">Apakah Anda yakin ingin menghapus berita <strong id="deleteTitle"></strong>? Tindakan ini tidak dapat dibatalkan.</p>
+      </div>
+      <div class="modal-footer">
+        <button onclick="closeDeleteModal()" class="btn btn-outline">Batal</button>
+        <button onclick="confirmDelete()" class="btn btn-danger" id="confirmDeleteBtn">Hapus Sekarang</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/firebase-config.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    injectSidebar('berita');
+
+    let allData = {};
+    let deleteId = null;
+
+    // Load berita
+    db.ref('berita').orderByChild('createdAt').on('value', snap => {
+      document.getElementById('loadingState').style.display = 'none';
+      if (!snap.exists()) {
+        allData = {};
+        renderTable([]);
+        return;
+      }
+      allData = snap.val();
+      filterBerita();
+    });
+
+    function filterBerita() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const cat = document.getElementById('categoryFilter').value;
+      const items = Object.entries(allData).filter(([id, art]) => {
+        const matchQ = !q || art.title.toLowerCase().includes(q) || (art.author || '').toLowerCase().includes(q);
+        const matchCat = !cat || art.category === cat;
+        return matchQ && matchCat;
+      }).sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
+      renderTable(items);
+    }
+
+    function renderTable(items) {
+      const tbody = document.getElementById('beritaBody');
+      const tableEl = document.getElementById('beritaTable');
+      const emptyEl = document.getElementById('emptyState');
+      document.getElementById('countBadge').textContent = `${items.length} artikel`;
+      tbody.innerHTML = '';
+
+      if (items.length === 0) {
+        tableEl.style.display = 'none';
+        emptyEl.style.display = 'block';
+        return;
+      }
+
+      emptyEl.style.display = 'none';
+      tableEl.style.display = 'table';
+
+      items.forEach(([id, art]) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><img class="table-img" src="${fixAdminImgUrl(art.image)}" alt="" onerror="this.src='../logo_yayasan.png'"></td>
+          <td style="max-width:300px;">
+            <div style="font-weight:600;font-size:13.5px;color:#1a2e2b;margin-bottom:3px;">${art.title || '-'}</div>
+            <div style="font-size:11px;color:#94a8a5;">Oleh: ${art.author || '-'}</div>
+          </td>
+          <td><span class="badge badge-green">${art.category || '-'}</span></td>
+          <td style="font-size:12px;color:#94a8a5;">${art.date || '-'}</td>
+          <td style="font-size:12px;color:#5a7572;">${art.author || '-'}</td>
+          <td>
+            <div style="display:flex;gap:6px;">
+              <a href="berita-form.html?id=${id}" class="btn-icon" title="Edit">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              </a>
+              <button class="btn-icon danger" title="Hapus" onclick="openDeleteModal('${id}', '${(art.title || '').replace(/'/g,"\\'")}')">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openDeleteModal(id, title) {
+      deleteId = id;
+      document.getElementById('deleteTitle').textContent = `"${title}"`;
+      document.getElementById('deleteModal').style.display = 'flex';
+    }
+
+    function closeDeleteModal() {
+      deleteId = null;
+      document.getElementById('deleteModal').style.display = 'none';
+    }
+
+    function confirmDelete() {
+      if (!deleteId) return;
+      const btn = document.getElementById('confirmDeleteBtn');
+      btn.textContent = 'Menghapus...';
+      btn.disabled = true;
+      db.ref(`berita/${deleteId}`).remove().then(() => {
+        closeDeleteModal();
+        showToast('Berita berhasil dihapus.');
+      }).catch(err => {
+        showToast('Gagal menghapus: ' + err.message, 'error');
+        btn.textContent = 'Hapus Sekarang';
+        btn.disabled = false;
+      });
+    }
+  </script>
+</body>
+</html>
