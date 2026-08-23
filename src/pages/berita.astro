@@ -311,7 +311,10 @@
 
   function buildNewsCard(id, art) {
     const excerpt = art.excerpt || (art.body ? art.body.replace(/<[^>]+>/g, '').substring(0, 120) + '...' : '');
-    const imgUrl = art.imageUrl || art.image || '/logo_yayasan.png';
+    let imgUrl = art.imageUrl || art.image || '/logo_yayasan.png';
+    if (typeof imgUrl === 'string' && !imgUrl.startsWith('http://') && !imgUrl.startsWith('https://') && !imgUrl.startsWith('data:') && !imgUrl.startsWith('/')) {
+      imgUrl = '/' + imgUrl;
+    }
     return `
       <a href="/detail-berita?id=${id}" class="group bg-white flex flex-col rounded-xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
         <div class="relative aspect-video overflow-hidden bg-gray-100">

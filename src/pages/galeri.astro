@@ -253,7 +253,10 @@
 
             if (grid) {
               grid.innerHTML = items.map(item => {
-                const photoUrl = item.imageUrl || item.url || item.image || '/logo_yayasan.png';
+                let photoUrl = item.imageUrl || item.url || item.image || '/logo_yayasan.png';
+                if (typeof photoUrl === 'string' && !photoUrl.startsWith('http://') && !photoUrl.startsWith('https://') && !photoUrl.startsWith('data:') && !photoUrl.startsWith('/')) {
+                  photoUrl = '/' + photoUrl;
+                }
                 const captionText = item.title || item.caption || 'Foto Galeri';
                 const safeUrl = photoUrl.replace(/'/g, "\\'");
                 const safeCaption = captionText.replace(/'/g, "\\'");
