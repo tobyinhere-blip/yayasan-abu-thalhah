@@ -1,3 +1,12 @@
 ---
-return Astro.redirect('/admin/index.html');
 ---
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="refresh" content="0;url=/admin/index.html">
+    <script is:inline>window.location.replace('/admin/index.html');</script>
+    <title>Redirecting to Admin...</title>
+</head>
+<body style="background-color: #f8fafc; margin: 0;"></body>
+</html>
