@@ -44,11 +44,6 @@
   status = 200
 
 [[redirects]]
-  from = "/admin/pengurus"
-  to = "/admin/pengurus.html"
-  status = 200
-
-[[redirects]]
   from = "/admin/unit"
   to = "/admin/unit.html"
   status = 200
