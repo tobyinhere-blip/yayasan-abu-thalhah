@@ -310,20 +310,26 @@
             const loading = document.getElementById('gallery-loading');
             loading.style.display = 'none';
 
-            grid.innerHTML = items.map(item => `
-                <div class="group relative bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200 cursor-pointer" onclick="openLightbox('${item.url.replace(/'/g, "\\'")}', '${(item.caption||'Foto Galeri').replace(/'/g, "\\'")}')">
+            grid.innerHTML = items.map(item => {
+                const photoUrl = item.imageUrl || item.url || item.image || 'logo_yayasan.png';
+                const captionText = item.title || item.caption || 'Foto Galeri';
+                const safeUrl = photoUrl.replace(/'/g, "\\'");
+                const safeCaption = captionText.replace(/'/g, "\\'");
+                return `
+                <div class="group relative bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200 cursor-pointer" onclick="openLightbox('${safeUrl}', '${safeCaption}')">
                     <div class="relative aspect-[4/3] overflow-hidden bg-gray-100 flex items-center justify-center">
-                        <img src="${item.url}" alt="" class="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700" onerror="this.src='logo_yayasan.png';this.style.objectFit='contain';this.style.padding='16px'">
+                        <img src="${photoUrl}" alt="${captionText}" class="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700" onerror="this.onerror=null;this.src='logo_yayasan.png';this.style.objectFit='contain';this.style.padding='16px'">
                         <div class="absolute inset-0 bg-gray-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                             <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </div>
                     </div>
                     <div class="p-4 border-t border-gray-100">
                         <p class="text-xs text-smanti-orange font-bold uppercase tracking-wider mb-1">${item.category || 'Dokumentasi'}</p>
-                        <h3 class="font-sora font-semibold text-gray-900 line-clamp-1">${item.caption || 'Foto Galeri'}</h3>
+                        <h3 class="font-sora font-semibold text-gray-900 line-clamp-1">${captionText}</h3>
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
 
             grid.style.display = 'grid';
         }
