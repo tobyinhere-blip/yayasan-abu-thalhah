@@ -26,8 +26,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
 
-      const logoUrl = d.headerLogoUrl || d.logoHeader;
+      let logoUrl = d.headerLogoUrl || d.logoHeader;
       if (logoUrl) {
+        if (typeof logoUrl === 'string' && !logoUrl.startsWith('http://') && !logoUrl.startsWith('https://') && !logoUrl.startsWith('/')) {
+          logoUrl = '/' + logoUrl;
+        }
         document.querySelectorAll('header img[alt*="Logo"], footer img[alt*="Logo"], .header-logo-img, .footer-logo-img').forEach(img => {
           img.src = logoUrl;
         });
