@@ -4,10 +4,9 @@
 
 auth.onAuthStateChanged(function(user) {
   if (!user) {
-    // Only redirect if not already on login.html or setup.html
-    const currentPage = window.location.pathname.split('/').pop();
-    if (currentPage !== 'login.html' && currentPage !== 'setup.html') {
-      window.location.href = 'login.html';
+    const path = window.location.pathname;
+    if (!path.includes('login') && !path.includes('setup')) {
+      window.location.href = '/admin/login';
     }
   } else {
     // Set user display
@@ -23,7 +22,7 @@ auth.onAuthStateChanged(function(user) {
 function doLogout() {
   if (confirm('Yakin ingin keluar dari dashboard?')) {
     auth.signOut().then(() => {
-      window.location.href = 'login.html';
+      window.location.href = '/admin/login';
     });
   }
 }

@@ -44,7 +44,7 @@
   <script>
     // Redirect if already logged in
     auth.onAuthStateChanged(user => {
-      if (user) window.location.href = 'index.html';
+      if (user) window.location.href = '/admin/';
     });
 
     async function doLogin(e) {
@@ -60,7 +60,7 @@
 
       try {
         await auth.signInWithEmailAndPassword(email, password);
-        window.location.href = 'index.html';
+        window.location.href = '/admin/';
       } catch (err) {
         let msg = 'Login gagal. Periksa email dan password Anda.';
         if (err.code === 'auth/user-not-found') msg = 'Akun tidak ditemukan.';

@@ -22,7 +22,7 @@
         <span class="topbar-breadcrumb">Dashboard / Berita / Form</span>
       </div>
       <div style="display:flex;gap:10px;">
-        <a href="berita.html" class="btn btn-outline">
+        <a href="/admin/berita" class="btn btn-outline">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
           Kembali
         </a>
@@ -231,7 +231,7 @@
         }
         await db.ref(`berita/${slug}`).set(payload);
         showToast(isEdit ? 'Berita berhasil diupdate!' : 'Berita berhasil ditambahkan!');
-        setTimeout(() => { window.location.href = 'berita.html'; }, 1200);
+        setTimeout(() => { window.location.href = '/admin/berita'; }, 1200);
       } catch (err) {
         showToast('Gagal menyimpan: ' + err.message, 'error');
         btn.disabled = false;

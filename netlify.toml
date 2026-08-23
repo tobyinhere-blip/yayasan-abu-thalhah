@@ -18,3 +18,59 @@
   to = "/admin/index.html"
   status = 200
 
+[[redirects]]
+  from = "/admin/beranda"
+  to = "/admin/beranda.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/header-footer"
+  to = "/admin/header-footer.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/berita"
+  to = "/admin/berita.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/berita-form"
+  to = "/admin/berita-form.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/galeri"
+  to = "/admin/galeri.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/pengurus"
+  to = "/admin/pengurus.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/unit"
+  to = "/admin/unit.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/tentang"
+  to = "/admin/tentang.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/login"
+  to = "/admin/login.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/setup"
+  to = "/admin/setup.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/seed"
+  to = "/admin/seed.html"
+  status = 200
+
+
