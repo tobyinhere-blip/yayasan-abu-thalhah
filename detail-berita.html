@@ -806,10 +806,22 @@
             document.getElementById('article-date').innerText = article.date;
 
             const imgEl = document.getElementById('article-image');
-            imgEl.src = article.image;
-            imgEl.alt = "";
+            let imgSrc = article.imageUrl || article.image || 'logo_yayasan.png';
+            if (typeof imgSrc === 'string' && !imgSrc.startsWith('http://') && !imgSrc.startsWith('https://') && !imgSrc.startsWith('data:') && !imgSrc.startsWith('/')) {
+                imgSrc = '/' + imgSrc;
+            }
+            imgEl.src = imgSrc;
+            imgEl.alt = article.title || "";
+            imgEl.onerror = function() {
+                this.onerror = null;
+                this.src = '/logo_yayasan.png';
+                this.style.width = "auto";
+                this.style.height = "220px";
+                this.style.objectFit = "contain";
+                this.style.padding = "24px";
+            };
 
-            if (article.image === "logo_yayasan.png" || article.image === "cta-image.png") {
+            if (imgSrc.includes('logo_yayasan') || imgSrc.includes('cta-image')) {
                 imgEl.style.width = "auto";
                 imgEl.style.height = "220px";
                 imgEl.style.objectFit = "contain";
@@ -821,7 +833,7 @@
                 imgEl.style.padding = "0px";
             }
 
-            document.getElementById('article-body').innerHTML = article.body;
+            document.getElementById('article-body').innerHTML = article.body || article.content || article.excerpt || '';
 
             document.getElementById('loading-state').style.display = 'none';
             document.getElementById('article-content').style.display = 'block';
@@ -835,13 +847,17 @@
                 const card = document.createElement('a');
                 card.href = `detail-berita.html?id=${otherId}`;
                 card.className = "news-sidebar-card";
-                let imgMarkup = `<img src="${other.image}" alt="" class="object-cover w-full h-full">`;
-                if (other.image === "logo_yayasan.png" || other.image === "cta-image.png") {
-                    imgMarkup = `<img src="${other.image}" alt="" style="object-fit: contain; padding: 4px;">`;
+                let otherImg = other.imageUrl || other.image || 'logo_yayasan.png';
+                if (typeof otherImg === 'string' && !otherImg.startsWith('http://') && !otherImg.startsWith('https://') && !otherImg.startsWith('data:') && !otherImg.startsWith('/')) {
+                    otherImg = '/' + otherImg;
+                }
+                let imgMarkup = `<img src="${otherImg}" alt="" class="object-cover w-full h-full" onerror="this.onerror=null;this.src='/logo_yayasan.png';this.style.objectFit='contain';this.style.padding='4px'">`;
+                if (otherImg.includes('logo_yayasan') || otherImg.includes('cta-image')) {
+                    imgMarkup = `<img src="${otherImg}" alt="" style="object-fit: contain; padding: 4px;">`;
                 }
                 card.innerHTML = `
                     <div class="news-sidebar-card-img-wrapper">${imgMarkup}</div>
-                    <div class="news-sidebar-card-content"><h4 class="news-sidebar-card-title">${other.title}</h4></div>
+                    <div class="news-sidebar-card-content"><h4 class="news-sidebar-card-title">${other.title || ''}</h4></div>
                 `;
                 sidebarList.appendChild(card);
             });

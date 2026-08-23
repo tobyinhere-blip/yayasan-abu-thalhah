@@ -542,11 +542,22 @@
 
             const imgWrapper = document.querySelector('.news-featured-img-wrapper');
             const imgEl = document.getElementById('article-image');
-            const imgSrc = article.image || article.imageUrl;
+            let imgSrc = article.imageUrl || article.image || '/logo_yayasan.png';
+            if (typeof imgSrc === 'string' && !imgSrc.startsWith('http://') && !imgSrc.startsWith('https://') && !imgSrc.startsWith('data:') && !imgSrc.startsWith('/')) {
+                imgSrc = '/' + imgSrc;
+            }
             
             if (imgEl && imgSrc && imgSrc.trim() !== '') {
                 imgEl.src = imgSrc;
                 imgEl.alt = article.title || '';
+                imgEl.onerror = function() {
+                    this.onerror = null;
+                    this.src = '/logo_yayasan.png';
+                    this.style.width = "auto";
+                    this.style.height = "220px";
+                    this.style.objectFit = "contain";
+                    this.style.padding = "24px";
+                };
                 if (imgSrc.includes('logo_yayasan') || imgSrc.includes('cta-image')) {
                     imgEl.style.width = "auto";
                     imgEl.style.height = "220px";
@@ -586,8 +597,11 @@
                     card.className = "news-sidebar-card";
                     card.style.cssText = "display: flex !important; flex-direction: row !important; gap: 16px !important; align-items: flex-start !important; text-decoration: none !important; color: inherit !important; padding: 4px 0 !important;";
                     
-                    const otherImg = other.image || other.imageUrl || '/logo_yayasan.png';
-                    let imgMarkup = `<img src="${otherImg}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.src='/logo_yayasan.png';this.style.objectFit='contain';this.style.padding='4px'">`;
+                    let otherImg = other.imageUrl || other.image || '/logo_yayasan.png';
+                    if (typeof otherImg === 'string' && !otherImg.startsWith('http://') && !otherImg.startsWith('https://') && !otherImg.startsWith('data:') && !otherImg.startsWith('/')) {
+                        otherImg = '/' + otherImg;
+                    }
+                    let imgMarkup = `<img src="${otherImg}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.onerror=null;this.src='/logo_yayasan.png';this.style.objectFit='contain';this.style.padding='4px'">`;
                     if (otherImg.includes('logo_yayasan') || otherImg.includes('cta-image')) {
                         imgMarkup = `<img src="${otherImg}" alt="" style="object-fit: contain; padding: 4px; width: 100%; height: 100%; display:block;">`;
                     }
