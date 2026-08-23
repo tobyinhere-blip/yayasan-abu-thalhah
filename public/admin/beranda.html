@@ -121,30 +121,6 @@
         </div>
       </div>
 
-      <!-- Section 4: Statistik Angka Yayasan -->
-      <div class="form-section">
-        <div class="form-section-title">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-          Statistik Angka Yayasan (Counter Bar)
-        </div>
-        <div class="form-grid">
-          <div class="form-group col-3">
-            <label class="form-label">Jumlah Santri / Siswa</label>
-            <input type="text" id="statSantri" class="form-input" value="500+" placeholder="500+">
-          </div>
-          <div class="form-group col-3">
-            <label class="form-label">Jumlah Asatidzah / Pengajar</label>
-            <input type="text" id="statPengajar" class="form-input" value="45+" placeholder="45+">
-          </div>
-          <div class="form-group col-3">
-            <label class="form-label">Jumlah Unit Pendidikan</label>
-            <input type="text" id="statUnit" class="form-input" value="4" placeholder="4">
-          </div>
-          <div class="form-group col-3">
-            <label class="form-label">Hafiz / Penghafal Qur'an</label>
-            <input type="text" id="statHafiz" class="form-input" value="120+" placeholder="120+">
-          </div>
-        </div>
       <!-- Section 5: Kartu Unit Pendidikan di Beranda -->
       <div class="form-section">
         <div class="form-section-title">
@@ -242,10 +218,6 @@
       if (d.pimpinanFoto) document.getElementById('pimpinanFoto').value = d.pimpinanFoto;
       if (d.sambutanHtml) quillSambutan.root.innerHTML = d.sambutanHtml;
 
-      if (d.statSantri) document.getElementById('statSantri').value = d.statSantri;
-      if (d.statPengajar) document.getElementById('statPengajar').value = d.statPengajar;
-      if (d.statUnit) document.getElementById('statUnit').value = d.statUnit;
-      if (d.statHafiz) document.getElementById('statHafiz').value = d.statHafiz;
 
       if (d.unit1Nama) document.getElementById('unit1Nama').value = d.unit1Nama;
       if (d.unit1Logo) document.getElementById('unit1Logo').value = d.unit1Logo;
@@ -280,10 +252,6 @@
           pimpinanFoto: document.getElementById('pimpinanFoto').value.trim(),
           sambutanHtml: quillSambutan.root.innerHTML,
 
-          statSantri: document.getElementById('statSantri').value.trim(),
-          statPengajar: document.getElementById('statPengajar').value.trim(),
-          statUnit: document.getElementById('statUnit').value.trim(),
-          statHafiz: document.getElementById('statHafiz').value.trim(),
 
           unit1Nama: document.getElementById('unit1Nama').value.trim(),
           unit1Logo: document.getElementById('unit1Logo').value.trim(),
