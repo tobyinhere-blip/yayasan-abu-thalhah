@@ -20,10 +20,6 @@
         <span class="topbar-breadcrumb">Selamat datang di panel admin yayasan</span>
       </div>
       <div class="topbar-actions" style="display:flex;gap:10px;">
-        <a href="seed.html" class="btn btn-primary btn-sm" style="background:#059669;border-color:#059669;">
-          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-          Impor Data Bawaan Website
-        </a>
         <a href="../index.html" target="_blank" class="btn btn-outline btn-sm">
           <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
           Lihat Website
@@ -32,19 +28,6 @@
     </header>
 
     <div class="admin-content">
-      <!-- Seed Banner if DB Empty -->
-      <div id="seedBanner" style="display:none;background:linear-gradient(135deg,#ecfdf5 0%,#d1fae5 100%);border:1px solid #a7f3d0;border-radius:14px;padding:20px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 4px 12px rgba(16,113,99,0.08);">
-        <div style="display:flex;align-items:center;gap:16px;">
-          <div style="width:48px;height:48px;border-radius:12px;background:#107163;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">💡</div>
-          <div>
-            <div style="font-weight:700;font-size:15px;color:#065f46;">Database Firebase Masih Kosong!</div>
-            <div style="font-size:13px;color:#047857;margin-top:2px;">Klik tombol di samping untuk mengimpor otomatis seluruh konten bawaan website (9 Berita, Foto Galeri, Profil Pengurus, Unit Pendidikan, & Tentang Kami) ke Firebase.</div>
-          </div>
-        </div>
-        <a href="seed.html" class="btn btn-primary" style="white-space:nowrap;background:#107163;padding:10px 20px;">
-          🚀 Impor Data Sekarang
-        </a>
-      </div>
       <!-- Stats -->
       <div class="stats-grid" id="statsGrid">
         <div class="stat-card">
@@ -160,8 +143,17 @@
   <script src="js/firebase-config.js"></script>
   <script src="js/sidebar.js"></script>
   <script src="js/auth.js"></script>
+  <script src="js/auto-seed.js"></script>
   <script>
     injectSidebar('dashboard');
+
+    async function initDashboard() {
+      if (typeof ensureDataSeeded === 'function') {
+        await ensureDataSeeded();
+      }
+      loadStats();
+    }
+    initDashboard();
 
     // Load statistics
     function loadStats() {
@@ -170,7 +162,6 @@
         const hasData = snap.exists() && Object.keys(snap.val()).length > 0;
         const count = hasData ? Object.keys(snap.val()).length : 0;
         document.getElementById('countBerita').textContent = count;
-        document.getElementById('seedBanner').style.display = hasData ? 'none' : 'flex';
         loadRecentBerita(snap.val());
       });
       // Galeri
