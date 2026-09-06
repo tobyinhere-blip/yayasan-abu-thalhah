@@ -59,11 +59,6 @@
   status = 200
 
 [[redirects]]
-  from = "/admin/setup"
-  to = "/admin/setup.html"
-  status = 200
-
-[[redirects]]
   from = "/admin/seed"
   to = "/admin/seed.html"
   status = 200
