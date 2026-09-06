@@ -146,16 +146,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const heroDescEl = document.querySelector('.home-hero-desc');
         if (heroDescEl && d.heroDesc) heroDescEl.textContent = d.heroDesc;
 
+        function sanitizePageLink(link) {
+          if (!link) return '#';
+          if (link.startsWith('http://') || link.startsWith('https://') || link.startsWith('#')) return link;
+          let cleaned = link.replace(/\.html$/, '');
+          if (!cleaned.startsWith('/')) cleaned = '/' + cleaned;
+          return cleaned;
+        }
+
         const cta1Btn = document.getElementById('heroCta1Btn');
         if (cta1Btn) {
           if (d.heroCta1Text) cta1Btn.textContent = d.heroCta1Text;
-          if (d.heroCta1Link) cta1Btn.href = d.heroCta1Link;
+          if (d.heroCta1Link) cta1Btn.href = sanitizePageLink(d.heroCta1Link);
         }
 
         const cta2Btn = document.getElementById('heroCta2Btn');
         if (cta2Btn) {
           if (d.heroCta2Text) cta2Btn.textContent = d.heroCta2Text;
-          if (d.heroCta2Link) cta2Btn.href = d.heroCta2Link;
+          if (d.heroCta2Link) cta2Btn.href = sanitizePageLink(d.heroCta2Link);
         }
 
         // Sambutan Pimpinan
@@ -183,6 +191,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const statHafizEl = document.querySelector('.stat-hafiz');
         if (statHafizEl && d.statHafiz) statHafizEl.textContent = d.statHafiz;
+
+        // Beranda Unit Cards (from Pengaturan Beranda)
+        const unitGrid = document.getElementById('homeUnitGrid');
+        if (unitGrid) {
+          const cards = unitGrid.querySelectorAll('.relative.bg-white');
+          if (cards[0]) {
+            if (d.unit1Nama) {
+              const h3 = cards[0].querySelector('h3');
+              if (h3) h3.textContent = d.unit1Nama;
+            }
+            if (d.unit1Desc) {
+              const p = cards[0].querySelector('p');
+              if (p) p.textContent = d.unit1Desc;
+            }
+            if (d.unit1Logo) {
+              const logoBox = cards[0].querySelector('.absolute.top-0');
+              if (logoBox) {
+                logoBox.innerHTML = `<img src="${d.unit1Logo}" alt="${d.unit1Nama || ''}" class="w-12 h-12 object-contain rounded-full" onerror="this.onerror=null;this.src='/logo_yayasan.png'">`;
+              }
+            }
+          }
+          if (cards[1]) {
+            if (d.unit2Nama) {
+              const h3 = cards[1].querySelector('h3');
+              if (h3) h3.textContent = d.unit2Nama;
+            }
+            if (d.unit2Desc) {
+              const p = cards[1].querySelector('p');
+              if (p) p.textContent = d.unit2Desc;
+            }
+            if (d.unit2Logo) {
+              const logoBox = cards[1].querySelector('.absolute.top-0');
+              if (logoBox) {
+                logoBox.innerHTML = `<img src="${d.unit2Logo}" alt="${d.unit2Nama || ''}" class="w-12 h-12 object-contain rounded-full" onerror="this.onerror=null;this.src='/logo_yayasan.png'">`;
+              }
+            }
+          }
+        }
       });
 
       // 3. Realtime Sync Beranda Berita

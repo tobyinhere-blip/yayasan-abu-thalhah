@@ -5,12 +5,18 @@
   # 1. Redirect /admin to /admin/
   RewriteRule ^admin$ /admin/ [R=301,L]
 
-  # 2. Rewrite clean URL to .html (contoh: /admin/login -> /admin/login.html)
+  # 2. Redirect jika ada permintaan .html ke folder clean URL (contoh: unit-pendidikan.html -> unit-pendidikan/)
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_URI} ^/(.+)\.html$
+  RewriteCond %{DOCUMENT_ROOT}/%1/index.html -f
+  RewriteRule ^(.*)\.html$ /$1/ [R=301,L]
+
+  # 3. Rewrite clean URL to .html (contoh: /admin/login -> /admin/login.html)
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_FILENAME}.html -f
   RewriteRule ^(.*)$ $1.html [L]
 
-  # 3. Fallback jika path di root
+  # 4. Fallback jika path di root
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{DOCUMENT_ROOT}/$1.html -f
   RewriteRule ^(.*)$ $1.html [L]

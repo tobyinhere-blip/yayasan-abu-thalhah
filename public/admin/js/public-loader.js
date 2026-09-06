@@ -146,16 +146,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const heroDescEl = document.querySelector('.home-hero-desc');
         if (heroDescEl && d.heroDesc) heroDescEl.textContent = d.heroDesc;
 
+        function sanitizePageLink(link) {
+          if (!link) return '#';
+          if (link.startsWith('http://') || link.startsWith('https://') || link.startsWith('#')) return link;
+          let cleaned = link.replace(/\.html$/, '');
+          if (!cleaned.startsWith('/')) cleaned = '/' + cleaned;
+          return cleaned;
+        }
+
         const cta1Btn = document.getElementById('heroCta1Btn');
         if (cta1Btn) {
           if (d.heroCta1Text) cta1Btn.textContent = d.heroCta1Text;
-          if (d.heroCta1Link) cta1Btn.href = d.heroCta1Link;
+          if (d.heroCta1Link) cta1Btn.href = sanitizePageLink(d.heroCta1Link);
         }
 
         const cta2Btn = document.getElementById('heroCta2Btn');
         if (cta2Btn) {
           if (d.heroCta2Text) cta2Btn.textContent = d.heroCta2Text;
-          if (d.heroCta2Link) cta2Btn.href = d.heroCta2Link;
+          if (d.heroCta2Link) cta2Btn.href = sanitizePageLink(d.heroCta2Link);
         }
 
         // Sambutan Pimpinan
